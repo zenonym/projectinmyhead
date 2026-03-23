@@ -3,928 +3,886 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FlashForge — Spaced Repetition Flashcards</title>
+<title>FlashRPG</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande',sans-serif;background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-height:100vh;color:#fff;overflow-x:hidden}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ── NAVBAR ── */
+.navbar{display:flex;align-items:center;padding:10px 16px;background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:100;gap:10px;flex-wrap:wrap}
+.logo{font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,#fa709a,#fee140);-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;margin-right:6px}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap}
+.nav-btn{padding:6px 13px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:.78rem;background:rgba(255,255,255,.08);color:#aaa;transition:all .25s}
+.nav-btn:hover,.nav-btn.active{background:rgba(255,255,255,.18);color:#fff}
+.nav-btn.active{background:linear-gradient(135deg,#f093fb,#f5576c)}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.inv-btn{padding:6px 10px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:.78rem;background:rgba(255,255,255,.08);color:#ccc;transition:all .25s;white-space:nowrap}
+.inv-btn:hover{background:rgba(255,255,255,.18);color:#fff}
 
-  :root {
-    --grad1: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --grad2: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --grad3: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    --grad4: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    --grad5: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
-    --grad6: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);
-    --grad7: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --gradbg: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-  }
+/* XP BAR */
+.xp-wrap{display:flex;align-items:center;gap:6px}
+.xp-lv{font-weight:900;font-size:.78rem;color:#fee140;white-space:nowrap}
+.xp-bar-out{width:100px;height:12px;background:rgba(255,255,255,.1);border-radius:6px;overflow:hidden}
+.xp-bar-in{height:100%;background:linear-gradient(90deg,#f7971e,#ffd200);border-radius:6px;transition:width .4s;box-shadow:0 0 8px rgba(255,210,0,.4);width:0%}
+.xp-nums{font-size:.65rem;font-weight:700;color:#999;white-space:nowrap}
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: var(--gradbg);
-    min-height: 100vh;
-    color: #fff;
-    overflow-x: hidden;
-  }
+/* PAGES */
+.page{display:none;padding:20px;max-width:900px;margin:0 auto}
+.page.active{display:block}
+.section-title{font-size:1.6rem;font-weight:900;margin-bottom:6px;background:linear-gradient(135deg,#4facfe,#00f2fe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.section-sub{color:#8888aa;margin-bottom:20px;font-size:.9rem}
 
-  /* ── NAV ── */
-  .navbar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 24px;
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    position: sticky; top: 0; z-index: 100;
-  }
-  .logo {
-    font-size: 1.5rem; font-weight: 900;
-    background: var(--grad4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .nav-links { display: flex; gap: 6px; }
-  .nav-btn {
-    padding: 8px 18px; border-radius: 12px; border: none; cursor: pointer;
-    font-family: inherit; font-weight: 600; font-size: .85rem;
-    background: rgba(255,255,255,0.08); color: #ccc; transition: all .25s;
-  }
-  .nav-btn:hover, .nav-btn.active {
-    background: rgba(255,255,255,0.18); color: #fff;
-  }
-  .nav-btn.active {
-    background: var(--grad1); color: #fff;
-    -webkit-text-fill-color: #fff;
-  }
+/* GLASS */
+.glass{background:rgba(255,255,255,.06);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:22px}
 
-  /* ── PAGES ── */
-  .page { display: none; padding: 24px; max-width: 900px; margin: 0 auto; }
-  .page.active { display: block; }
+/* DECK GRID */
+.deck-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.deck-card{border-radius:18px;padding:20px;cursor:pointer;transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden}
+.deck-card:hover{transform:translateY(-3px);box-shadow:0 10px 36px rgba(0,0,0,.3)}
+.deck-card h3{font-size:1.1rem;font-weight:700;margin-bottom:4px}
+.deck-card p{font-size:.75rem;opacity:.85}
+.deck-stats{display:flex;gap:10px;margin-top:12px}
+.deck-stat{background:rgba(0,0,0,.25);border-radius:8px;padding:4px 10px;font-size:.7rem;font-weight:600}
+.deck-stat.nc{color:#4facfe}.deck-stat.lc{color:#f5576c}.deck-stat.rc{color:#43e97b}
+.deck-actions{position:absolute;top:10px;right:10px;display:flex;gap:3px}
+.deck-action-btn{width:26px;height:26px;border-radius:7px;border:none;cursor:pointer;background:rgba(0,0,0,.3);color:#fff;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.deck-action-btn:hover{background:rgba(0,0,0,.6)}
+.add-deck-card{border:2px dashed rgba(255,255,255,.15);border-radius:18px;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;cursor:pointer;transition:all .25s;min-height:140px}
+.add-deck-card:hover{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.04)}
+.add-deck-card .plus{font-size:1.8rem;opacity:.4;margin-bottom:4px}
+.add-deck-card span{opacity:.4;font-size:.8rem;font-weight:700}
 
-  /* ── HEADINGS ── */
-  .section-title {
-    font-size: 1.8rem; font-weight: 800; margin-bottom: 8px;
-    background: var(--grad2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .section-sub { color: #8888aa; margin-bottom: 24px; font-size: .95rem; }
+/* FORMS */
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-weight:600;font-size:.82rem;margin-bottom:5px;color:#aaa}
+.form-input{width:100%;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-family:inherit;font-size:.9rem;transition:border-color .2s;outline:none}
+.form-input:focus{border-color:rgba(79,172,254,.5)}
+.form-input::placeholder{color:#555}
+textarea.form-input{min-height:80px;resize:vertical}
+select.form-input option{background:#1a1a2e}
 
-  /* ── CARDS / PANELS ── */
-  .glass {
-    background: rgba(255,255,255,0.06);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px; padding: 24px;
-  }
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:10px 24px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:.85rem;color:#fff;transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.btn-primary{background:linear-gradient(135deg,#4facfe,#00f2fe)}
+.btn-pink{background:linear-gradient(135deg,#f093fb,#f5576c)}
+.btn-green{background:linear-gradient(135deg,#43e97b,#38f9d7);color:#111}
+.btn-amber{background:linear-gradient(135deg,#fa709a,#fee140);color:#111}
+.btn-ghost{background:rgba(255,255,255,.08);color:#aaa}
 
-  /* ── DECK GRID ── */
-  .deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
-  .deck-card {
-    border-radius: 20px; padding: 24px; cursor: pointer;
-    transition: transform .25s, box-shadow .25s; position: relative; overflow: hidden;
-  }
-  .deck-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
-  .deck-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
-  .deck-card p { font-size: .8rem; opacity: .85; }
-  .deck-stats { display: flex; gap: 12px; margin-top: 14px; }
-  .deck-stat {
-    background: rgba(0,0,0,0.25); border-radius: 10px; padding: 6px 12px; font-size: .75rem; font-weight: 600;
-  }
-  .deck-stat.new-c { color: #4facfe; }
-  .deck-stat.learn-c { color: #f5576c; }
-  .deck-stat.review-c { color: #43e97b; }
-  .deck-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; }
-  .deck-action-btn {
-    width: 28px; height: 28px; border-radius: 8px; border: none; cursor: pointer;
-    background: rgba(0,0,0,0.3); color: #fff; font-size: .8rem; transition: background .2s;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .deck-action-btn:hover { background: rgba(0,0,0,0.6); }
+/* TABS */
+.tab-row{display:flex;gap:4px;margin-bottom:18px}
+.tab-btn{padding:8px 18px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:.82rem;background:rgba(255,255,255,.08);color:#aaa;transition:all .25s}
+.tab-btn.active{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
 
-  .add-deck-card {
-    border: 2px dashed rgba(255,255,255,0.15); border-radius: 20px;
-    display: flex; align-items: center; justify-content: center; flex-direction: column;
-    padding: 24px; cursor: pointer; transition: all .25s; min-height: 160px;
-  }
-  .add-deck-card:hover { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.04); }
-  .add-deck-card .plus { font-size: 2rem; opacity: .4; margin-bottom: 6px; }
-  .add-deck-card span { opacity: .4; font-size: .85rem; font-weight: 600; }
+/* STUDY */
+.study-area{display:flex;flex-direction:column;align-items:center;padding-top:8px}
+.study-progress{width:100%;max-width:480px;display:flex;gap:14px;justify-content:center;margin-bottom:20px}
+.study-progress .sp{font-size:.82rem;font-weight:700}
+.sp-n{color:#4facfe}.sp-l{color:#f5576c}.sp-r{color:#43e97b}
+.flashcard-container{perspective:1200px;width:100%;max-width:480px;height:300px;margin-bottom:24px}
+.flashcard{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,.2,.2,1);cursor:pointer}
+.flashcard.flipped{transform:rotateY(180deg)}
+.flashcard-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:22px;padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:1.1rem;font-weight:600;word-break:break-word;overflow-y:auto}
+.flashcard-front{background:linear-gradient(135deg,#667eea,#764ba2)}
+.flashcard-back{background:linear-gradient(135deg,#fccb90,#d57eeb);transform:rotateY(180deg)}
+.flashcard-label{position:absolute;top:12px;left:18px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;opacity:.6}
 
-  /* ── FORMS ── */
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-weight: 600; font-size: .85rem; margin-bottom: 6px; color: #aaa; }
-  .form-input {
-    width: 100%; padding: 12px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.06); color: #fff; font-family: inherit; font-size: .95rem;
-    transition: border-color .2s; outline: none;
-  }
-  .form-input:focus { border-color: rgba(79,172,254,0.5); }
-  .form-input::placeholder { color: #555; }
-  textarea.form-input { min-height: 100px; resize: vertical; }
+.rating-buttons{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.rate-btn{padding:12px 16px;border-radius:14px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:.82rem;color:#fff;min-width:80px;transition:transform .2s,box-shadow .2s;display:flex;flex-direction:column;align-items:center;gap:1px}
+.rate-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.3)}
+.rate-btn .time{font-size:.65rem;opacity:.7;font-weight:500}
+.rate-again{background:linear-gradient(135deg,#f5576c,#c62828)}
+.rate-hard{background:linear-gradient(135deg,#fa709a,#f57c00)}
+.rate-good{background:linear-gradient(135deg,#4facfe,#1565c0)}
+.rate-easy{background:linear-gradient(135deg,#43e97b,#1b8a3d)}
+.tap-hint{color:#666;font-size:.78rem;margin-bottom:14px}
 
-  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
-  .btn {
-    padding: 12px 28px; border-radius: 14px; border: none; cursor: pointer;
-    font-family: inherit; font-weight: 700; font-size: .9rem; color: #fff;
-    transition: transform .2s, box-shadow .2s;
-  }
-  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
-  .btn-primary { background: var(--grad2); }
-  .btn-pink { background: var(--grad1); }
-  .btn-green { background: var(--grad3); color: #111; }
-  .btn-amber { background: var(--grad4); color: #111; }
-  .btn-ghost {
-    background: rgba(255,255,255,0.08); color: #aaa;
-  }
+/* BROWSE */
+.browse-toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.browse-toolbar select{padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-family:inherit;font-size:.82rem;outline:none;cursor:pointer}
+.browse-toolbar select option{background:#1a1a2e}
+.browse-search{flex:1;min-width:120px;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-family:inherit;font-size:.82rem;outline:none}
+.card-table{width:100%;border-collapse:collapse}
+.card-table th{text-align:left;padding:8px 12px;font-size:.7rem;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,.08)}
+.card-table td{padding:10px 12px;font-size:.8rem;border-bottom:1px solid rgba(255,255,255,.04);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-table tr:hover td{background:rgba(255,255,255,.03)}
+.td-actions{display:flex;gap:4px}
+.small-btn{padding:4px 10px;border-radius:7px;border:none;cursor:pointer;font-family:inherit;font-size:.7rem;font-weight:600;color:#fff;background:rgba(255,255,255,.1);transition:background .2s}
+.small-btn:hover{background:rgba(255,255,255,.2)}
+.small-btn.del:hover{background:rgba(245,87,108,.5)}
 
-  /* ── STUDY ── */
-  .study-area { display: flex; flex-direction: column; align-items: center; padding-top: 10px; }
-  .study-progress {
-    width: 100%; max-width: 500px; display: flex; gap: 16px; justify-content: center; margin-bottom: 24px;
-  }
-  .study-progress .sp-item { font-size: .85rem; font-weight: 700; }
-  .sp-new { color: #4facfe; }
-  .sp-learn { color: #f5576c; }
-  .sp-review { color: #43e97b; }
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{border-radius:16px;padding:18px;text-align:center}
+.stat-card .num{font-size:1.8rem;font-weight:900}
+.stat-card .lbl{font-size:.7rem;opacity:.7;margin-top:2px;font-weight:600}
+.heatmap-row{display:flex;gap:3px;flex-wrap:wrap;margin-top:8px}
+.heatmap-cell{width:15px;height:15px;border-radius:3px;background:rgba(255,255,255,.06)}
 
-  .flashcard-container { perspective: 1200px; width: 100%; max-width: 500px; height: 320px; margin-bottom: 28px; }
-  .flashcard {
-    width: 100%; height: 100%; position: relative;
-    transform-style: preserve-3d; transition: transform .5s cubic-bezier(.4,.2,.2,1); cursor: pointer;
-  }
-  .flashcard.flipped { transform: rotateY(180deg); }
-  .flashcard-face {
-    position: absolute; width: 100%; height: 100%;
-    backface-visibility: hidden; border-radius: 24px; padding: 32px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; font-size: 1.25rem; font-weight: 600;
-    word-break: break-word; overflow-y: auto;
-  }
-  .flashcard-front { background: var(--grad7); }
-  .flashcard-back { background: var(--grad6); transform: rotateY(180deg); }
-  .flashcard-label {
-    position: absolute; top: 14px; left: 20px;
-    font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; opacity: .6;
-  }
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-box{background:#1e1e3a;border-radius:22px;padding:28px;width:100%;max-width:460px;border:1px solid rgba(255,255,255,.1);max-height:90vh;overflow-y:auto}
+.modal-title{font-size:1.2rem;font-weight:800;margin-bottom:18px;background:linear-gradient(135deg,#a18cd1,#fbc2eb);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
-  .rating-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-  .rate-btn {
-    padding: 14px 20px; border-radius: 16px; border: none; cursor: pointer;
-    font-family: inherit; font-weight: 700; font-size: .85rem; color: #fff; min-width: 90px;
-    transition: transform .2s, box-shadow .2s; display: flex; flex-direction: column; align-items: center; gap: 2px;
-  }
-  .rate-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
-  .rate-btn .time { font-size: .7rem; opacity: .7; font-weight: 500; }
-  .rate-again { background: linear-gradient(135deg, #f5576c, #c62828); }
-  .rate-hard { background: linear-gradient(135deg, #fa709a, #f57c00); }
-  .rate-good { background: linear-gradient(135deg, #4facfe, #1565c0); }
-  .rate-easy { background: linear-gradient(135deg, #43e97b, #1b8a3d); }
-  .tap-hint { color: #666; font-size: .8rem; margin-bottom: 16px; }
+.empty-state{text-align:center;padding:50px 16px;color:#555}
+.empty-state .emoji{font-size:2.5rem;margin-bottom:10px}
+.empty-state p{font-size:.9rem}
 
-  /* ── BROWSE ── */
-  .browse-toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
-  .browse-toolbar select { 
-    padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.06); color: #fff; font-family: inherit; font-size: .85rem;
-    outline: none; cursor: pointer;
-  }
-  .browse-toolbar select option { background: #1a1a2e; }
-  .browse-search {
-    flex: 1; min-width: 150px; padding: 10px 14px; border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06);
-    color: #fff; font-family: inherit; font-size: .85rem; outline: none;
-  }
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);padding:10px 24px;border-radius:12px;font-weight:600;font-size:.82rem;background:linear-gradient(135deg,#43e97b,#38f9d7);color:#111;z-index:300;transition:transform .3s;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
 
-  .card-table { width: 100%; border-collapse: collapse; }
-  .card-table th {
-    text-align: left; padding: 10px 14px; font-size: .75rem; font-weight: 700;
-    color: #666; text-transform: uppercase; letter-spacing: 1px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  .card-table td {
-    padding: 12px 14px; font-size: .85rem; border-bottom: 1px solid rgba(255,255,255,0.04);
-    max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .card-table tr:hover td { background: rgba(255,255,255,0.03); }
-  .card-table .td-actions { display: flex; gap: 6px; }
-  .small-btn {
-    padding: 5px 12px; border-radius: 8px; border: none; cursor: pointer;
-    font-family: inherit; font-size: .75rem; font-weight: 600; color: #fff;
-    background: rgba(255,255,255,0.1); transition: background .2s;
-  }
-  .small-btn:hover { background: rgba(255,255,255,0.2); }
-  .small-btn.del:hover { background: rgba(245,87,108,0.5); }
+/* XP FLOAT */
+@keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-36px)}}
+.xp-float{position:fixed;font-weight:900;color:#ffd200;font-size:.9rem;pointer-events:none;animation:floatUp .9s ease-out forwards;z-index:400;text-shadow:0 0 8px rgba(255,210,0,.5)}
 
-  /* ── STATS ── */
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
-  .stat-card {
-    border-radius: 18px; padding: 20px; text-align: center;
-  }
-  .stat-card .num { font-size: 2rem; font-weight: 900; }
-  .stat-card .lbl { font-size: .75rem; opacity: .7; margin-top: 2px; font-weight: 600; }
+/* CHALLENGE OVERLAY */
+.challenge-overlay{position:fixed;inset:0;background:rgba(10,0,20,.92);backdrop-filter:blur(10px);z-index:250;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.challenge-overlay.show{display:flex}
+.challenge-title{font-size:1.4rem;font-weight:900;background:linear-gradient(135deg,#f5576c,#fee140);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;text-align:center}
+.challenge-sub{color:#888;font-size:.85rem;margin-bottom:18px;text-align:center}
+.challenge-items{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.challenge-item-btn{padding:8px 16px;border-radius:12px;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#fff;font-family:inherit;font-weight:700;font-size:.82rem;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:6px}
+.challenge-item-btn:hover{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.12)}
+.challenge-item-btn:disabled{opacity:.3;cursor:default}
 
-  .heatmap-row { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 10px; }
-  .heatmap-cell {
-    width: 16px; height: 16px; border-radius: 4px; background: rgba(255,255,255,0.06);
-  }
+/* TIMER BAR */
+.timer-bar-track{position:fixed;bottom:0;left:0;width:100%;height:5px;background:rgba(255,255,255,.05);z-index:260;display:none}
+.timer-bar-track.show{display:block}
+.timer-bar-fill{height:100%;background:#fff;width:100%;transition:none;box-shadow:0 0 10px rgba(255,255,255,.4)}
+.timer-bar-fill.frozen{background:linear-gradient(90deg,#4facfe,#00f2fe);box-shadow:0 0 14px rgba(79,172,254,.6)}
 
-  /* ── MODAL ── */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);
-    z-index: 200; display: none; align-items: center; justify-content: center; padding: 24px;
-  }
-  .modal-overlay.show { display: flex; }
-  .modal-box {
-    background: #1e1e3a; border-radius: 24px; padding: 32px; width: 100%; max-width: 480px;
-    border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto;
-  }
-  .modal-title {
-    font-size: 1.3rem; font-weight: 800; margin-bottom: 20px;
-    background: var(--grad5); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
+/* REWARD OVERLAY */
+.reward-overlay{position:fixed;inset:0;background:rgba(10,0,20,.92);backdrop-filter:blur(10px);z-index:270;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.reward-overlay.show{display:flex}
+@keyframes rewardPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.reward-title{font-size:1.6rem;font-weight:900;background:linear-gradient(135deg,#ffd200,#f7971e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:rewardPulse 1.5s ease infinite;text-align:center;margin-bottom:4px}
+.reward-sub{color:#aaa;font-size:.9rem;margin-bottom:24px;text-align:center}
+.reward-grid{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.reward-card{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:18px;padding:24px 20px;cursor:pointer;transition:all .3s;text-align:center;width:160px}
+.reward-card:hover{border-color:#ffd200;background:rgba(255,210,0,.08);transform:translateY(-4px);box-shadow:0 8px 30px rgba(255,210,0,.15)}
+.reward-card .ri{font-size:2.2rem;margin-bottom:8px}
+.reward-card .rn{font-weight:800;font-size:1rem;margin-bottom:4px}
+.reward-card .rd{font-size:.72rem;color:#999;line-height:1.3}
 
-  .empty-state {
-    text-align: center; padding: 60px 20px; color: #555;
-  }
-  .empty-state .emoji { font-size: 3rem; margin-bottom: 12px; }
-  .empty-state p { font-size: .95rem; }
+/* FAIL OVERLAY */
+.fail-overlay{position:fixed;inset:0;background:rgba(100,0,0,.85);backdrop-filter:blur(10px);z-index:270;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.fail-overlay.show{display:flex}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.fail-title{font-size:1.6rem;font-weight:900;color:#f5576c;animation:shake .5s;text-align:center;margin-bottom:8px}
+.fail-sub{color:#cc8888;font-size:.9rem;margin-bottom:20px;text-align:center}
 
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
-    padding: 12px 28px; border-radius: 14px; font-weight: 600; font-size: .85rem;
-    background: var(--grad3); color: #111; z-index: 300; transition: transform .3s;
-    pointer-events: none;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+/* INVENTORY MODAL ITEMS */
+.inv-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.inv-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:rgba(255,255,255,.04)}
+.inv-item .ii-icon{font-size:1.6rem}
+.inv-item .ii-info{flex:1}
+.inv-item .ii-name{font-weight:700;font-size:.9rem}
+.inv-item .ii-desc{font-size:.72rem;color:#888}
+.inv-item .ii-qty{font-weight:900;font-size:1.1rem;color:#fee140}
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 600px) {
-    .navbar { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
-    .nav-links { width: 100%; justify-content: center; }
-    .page { padding: 16px; }
-    .flashcard-container { height: 260px; }
-    .rating-buttons { gap: 6px; }
-    .rate-btn { min-width: 70px; padding: 12px 10px; font-size: .8rem; }
-    .deck-grid { grid-template-columns: 1fr; }
-    .stats-grid { grid-template-columns: 1fr 1fr; }
-  }
+@media(max-width:600px){
+  .navbar{padding:8px 12px}
+  .nav-links{width:100%;justify-content:center}
+  .nav-right{width:100%;justify-content:center}
+  .page{padding:14px}
+  .flashcard-container{height:250px}
+  .rating-buttons{gap:5px}
+  .rate-btn{min-width:65px;padding:10px 8px;font-size:.78rem}
+  .deck-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .xp-bar-out{width:70px}
+  .reward-card{width:130px;padding:18px 14px}
+}
 
-  /* scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px}
 </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav class="navbar">
-  <div class="logo">⚡ FlashForge</div>
+  <div class="logo">⚔️ FlashRPG</div>
   <div class="nav-links">
     <button class="nav-btn active" onclick="showPage('decks')">Decks</button>
     <button class="nav-btn" onclick="showPage('add')">+ Add</button>
     <button class="nav-btn" onclick="showPage('browse')">Browse</button>
     <button class="nav-btn" onclick="showPage('stats')">Stats</button>
   </div>
+  <div class="nav-right">
+    <button class="inv-btn" onclick="openInventory()" id="invBtn">🎒 ×0</button>
+    <div class="xp-wrap">
+      <span class="xp-lv" id="xpLv">Lv.1</span>
+      <div class="xp-bar-out"><div class="xp-bar-in" id="xpBar"></div></div>
+      <span class="xp-nums" id="xpNums">0/50</span>
+    </div>
+  </div>
 </nav>
 
-<!-- DECKS PAGE -->
 <div id="page-decks" class="page active">
   <h1 class="section-title">Your Decks</h1>
-  <p class="section-sub">Select a deck to start studying</p>
+  <p class="section-sub">Select a deck to start your quest</p>
   <div class="deck-grid" id="deckGrid"></div>
 </div>
 
-<!-- ADD PAGE -->
 <div id="page-add" class="page">
-  <h1 class="section-title">Add New Cards</h1>
-  <p class="section-sub">Create flashcards for your decks</p>
-  <div class="glass">
+  <h1 class="section-title">Add Cards</h1>
+  <p class="section-sub">Create or import flashcards</p>
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="showAddTab('single',this)">Single Card</button>
+    <button class="tab-btn" onclick="showAddTab('bulk',this)">Bulk Import</button>
+  </div>
+  <div id="addSingle" class="glass">
+    <div class="form-group"><label>Deck</label><select id="addDeckSel" class="form-input"></select></div>
+    <div class="form-group"><label>Front (Question)</label><textarea id="addFront" class="form-input" placeholder="Type the question..."></textarea></div>
+    <div class="form-group"><label>Back (Answer)</label><textarea id="addBack" class="form-input" placeholder="Type the answer..."></textarea></div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="addCard()">Add Card</button></div>
+  </div>
+  <div id="addBulk" class="glass" style="display:none">
+    <div class="form-group"><label>Deck</label><select id="importDeckSel" class="form-input"></select></div>
     <div class="form-group">
-      <label>Deck</label>
-      <select id="addDeckSelect" class="form-input"></select>
+      <label>Paste Cards <span style="color:#666;font-weight:400">(format: front | back, one card per line, HTML supported)</span></label>
+      <textarea id="importText" class="form-input" style="min-height:220px;font-size:.82rem;line-height:1.5" placeholder="What is photosynthesis? | The process by which plants convert <b>sunlight</b> into energy.&#10;What is gravity? | A force that attracts objects with mass toward each other."></textarea>
     </div>
-    <div class="form-group">
-      <label>Front (Question)</label>
-      <textarea id="addFront" class="form-input" placeholder="Type the question or prompt..."></textarea>
-    </div>
-    <div class="form-group">
-      <label>Back (Answer)</label>
-      <textarea id="addBack" class="form-input" placeholder="Type the answer..."></textarea>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="addCard()">Add Card</button>
-    </div>
+    <div class="btn-row"><button class="btn btn-green" onclick="bulkImport()">Import Cards</button></div>
   </div>
 </div>
 
-<!-- STUDY PAGE -->
 <div id="page-study" class="page">
   <div class="study-area">
-    <h1 class="section-title" id="studyDeckTitle">Studying</h1>
+    <h1 class="section-title" id="studyTitle">Studying</h1>
     <div class="study-progress">
-      <span class="sp-item sp-new" id="spNew">New: 0</span>
-      <span class="sp-item sp-learn" id="spLearn">Learning: 0</span>
-      <span class="sp-item sp-review" id="spReview">Review: 0</span>
+      <span class="sp sp-n" id="spN">New: 0</span>
+      <span class="sp sp-l" id="spL">Learning: 0</span>
+      <span class="sp sp-r" id="spR">Review: 0</span>
     </div>
     <div id="studyContent"></div>
   </div>
 </div>
 
-<!-- BROWSE PAGE -->
 <div id="page-browse" class="page">
   <h1 class="section-title">Browse Cards</h1>
-  <p class="section-sub">Search and manage all your cards</p>
+  <p class="section-sub">Search and manage all cards</p>
   <div class="browse-toolbar">
-    <select id="browseDeckSelect" onchange="renderBrowse()"></select>
-    <input type="text" class="browse-search" id="browseSearch" placeholder="Search cards..." oninput="renderBrowse()">
+    <select id="browseDeckSel" onchange="renderBrowse()"></select>
+    <input type="text" class="browse-search" id="browseSearch" placeholder="Search..." oninput="renderBrowse()">
   </div>
-  <div class="glass" style="padding:0; overflow-x:auto;">
-    <table class="card-table">
-      <thead><tr><th>Front</th><th>Back</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead>
-      <tbody id="browseBody"></tbody>
-    </table>
-  </div>
-  <div id="browseEmpty" class="empty-state" style="display:none;">
-    <div class="emoji">🔍</div><p>No cards found</p>
-  </div>
+  <div class="glass" style="padding:0;overflow-x:auto"><table class="card-table"><thead><tr><th>Front</th><th>Back</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody id="browseBody"></tbody></table></div>
+  <div id="browseEmpty" class="empty-state" style="display:none"><div class="emoji">🔍</div><p>No cards found</p></div>
 </div>
 
-<!-- STATS PAGE -->
 <div id="page-stats" class="page">
   <h1 class="section-title">Statistics</h1>
-  <p class="section-sub">Your learning progress at a glance</p>
+  <p class="section-sub">Your learning journey</p>
   <div class="stats-grid" id="statsGrid"></div>
-  <div class="glass">
-    <h3 style="margin-bottom:12px; font-weight:700;">Review Activity (Last 30 Days)</h3>
-    <div class="heatmap-row" id="heatmap"></div>
-  </div>
+  <div class="glass"><h3 style="margin-bottom:10px;font-weight:700">Review Activity (Last 30 Days)</h3><div class="heatmap-row" id="heatmap"></div></div>
+</div>
+
+<!-- CHALLENGE -->
+<div class="challenge-overlay" id="challengeOverlay">
+  <div id="challengeInner"></div>
+</div>
+<div class="timer-bar-track" id="timerTrack"><div class="timer-bar-fill" id="timerFill"></div></div>
+
+<!-- REWARD -->
+<div class="reward-overlay" id="rewardOverlay">
+  <div id="rewardInner"></div>
+</div>
+
+<!-- FAIL -->
+<div class="fail-overlay" id="failOverlay">
+  <div id="failInner"></div>
 </div>
 
 <!-- MODAL -->
-<div class="modal-overlay" id="modal">
-  <div class="modal-box" id="modalBox"></div>
-</div>
-
-<!-- TOAST -->
+<div class="modal-overlay" id="modal"><div class="modal-box" id="modalBox"></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════
-// DATA LAYER
-// ═══════════════════════════════════════════
-const GRADIENTS = [
-  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-  'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-  'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
-  'linear-gradient(135deg, #fccb90 0%, #d57eeb 100%)',
-  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)',
-  'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)',
-  'linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%)',
+// ═══════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════
+const GRADS=[
+  'linear-gradient(135deg,#f093fb,#f5576c)','linear-gradient(135deg,#4facfe,#00f2fe)',
+  'linear-gradient(135deg,#43e97b,#38f9d7)','linear-gradient(135deg,#fa709a,#fee140)',
+  'linear-gradient(135deg,#a18cd1,#fbc2eb)','linear-gradient(135deg,#fccb90,#d57eeb)',
+  'linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#ff9a9e,#fad0c4)',
+  'linear-gradient(135deg,#fbc2eb,#a6c1ee)','linear-gradient(135deg,#fdcbf1,#e6dee9)'
 ];
 
-let data = {
-  decks: [],
-  cards: [],
-  reviewLog: [] // { date: 'YYYY-MM-DD', count: N }
-};
+const ITEM_DB=[
+  {id:'freeze',name:'Freeze',icon:'🧊',desc:'Freeze the timer for one challenge card',color:'#4facfe'},
+  {id:'burn',name:'Burn',icon:'🔥',desc:'Skip a challenge card without penalty',color:'#f5576c'}
+];
 
-function save() {
-  try { localStorage.setItem('flashforge_data', JSON.stringify(data)); } catch(e) {}
+const XP_PER_RATE=[1,3,6,10];
+const LEARN_STEPS=[1,10];
+const CHALLENGE_TIME=5000;
+
+function xpForLevel(lv){return 30+lv*20}
+function challengeCardsNeeded(lv){return Math.min(Math.ceil(lv/2),5)}
+
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+let data={decks:[],cards:[],reviewLog:[],player:{level:1,xp:0,inventory:[],totalXpEarned:0}};
+
+function save(){try{localStorage.setItem('flashrpg',JSON.stringify(data))}catch(e){}}
+function load(){
+  try{const d=localStorage.getItem('flashrpg');if(d){data=JSON.parse(d)}}catch(e){}
+  if(!data.player)data.player={level:1,xp:0,inventory:[],totalXpEarned:0};
+  if(!data.reviewLog)data.reviewLog=[];
+  if(!data.player.inventory)data.player.inventory=[];
+  if(!data.decks.length) seedData();
 }
-function load() {
-  try {
-    const d = localStorage.getItem('flashforge_data');
-    if (d) data = JSON.parse(d);
-  } catch(e) {}
-  if (!data.decks.length) {
-    // seed sample deck
-    const deckId = uid();
-    data.decks.push({ id: deckId, name: 'Sample Deck', grad: GRADIENTS[0], created: Date.now() });
-    const sampleCards = [
-      ['What is spaced repetition?','A learning technique that reviews material at increasing intervals to improve long-term memory.'],
-      ['Who created the SM-2 algorithm?','Piotr Woźniak developed it in 1987 as part of the SuperMemo project.'],
-      ['What does "recall" mean?','The ability to retrieve information from memory without cues.'],
-      ['What is active recall?','A study method where you actively stimulate memory during learning, rather than passively reviewing.'],
-      ['What is the forgetting curve?','A graph showing how information is lost over time when there is no attempt to retain it.'],
-    ];
-    sampleCards.forEach(([f,b]) => {
-      data.cards.push(newCard(deckId, f, b));
-    });
-    save();
-  }
-}
-
-function uid() { return Math.random().toString(36).substr(2,9) + Date.now().toString(36); }
-
-function newCard(deckId, front, back) {
-  return {
-    id: uid(), deckId, front, back,
-    status: 'new', // new | learning | review
-    interval: 0,   // days
-    ease: 2.5,
-    due: Date.now(),
-    step: 0,        // learning step (0,1)
-    reviews: 0
-  };
-}
-
-function today() {
-  return new Date().toISOString().slice(0,10);
-}
-
-function logReview() {
-  const t = today();
-  const entry = data.reviewLog.find(r => r.date === t);
-  if (entry) entry.count++;
-  else data.reviewLog.push({ date: t, count: 1 });
-}
-
-// ═══════════════════════════════════════════
-// SM-2 SIMPLIFIED
-// ═══════════════════════════════════════════
-const LEARN_STEPS = [1, 10]; // minutes
-
-function rateCard(card, rating) {
-  // rating: 0=again, 1=hard, 2=good, 3=easy
-  card.reviews++;
-  logReview();
-
-  if (card.status === 'new' || card.status === 'learning') {
-    if (rating === 0) {
-      card.step = 0;
-      card.status = 'learning';
-      card.due = Date.now() + LEARN_STEPS[0] * 60000;
-    } else if (rating === 1) {
-      card.status = 'learning';
-      card.due = Date.now() + LEARN_STEPS[0] * 60000;
-    } else if (rating === 2) {
-      card.step++;
-      if (card.step >= LEARN_STEPS.length) {
-        // graduate
-        card.status = 'review';
-        card.interval = 1;
-        card.due = Date.now() + 86400000;
-      } else {
-        card.status = 'learning';
-        card.due = Date.now() + LEARN_STEPS[card.step] * 60000;
-      }
-    } else { // easy
-      card.status = 'review';
-      card.interval = 4;
-      card.ease = Math.max(1.3, card.ease + 0.15);
-      card.due = Date.now() + 4 * 86400000;
-    }
-  } else { // review
-    if (rating === 0) {
-      card.status = 'learning';
-      card.step = 0;
-      card.interval = 1;
-      card.ease = Math.max(1.3, card.ease - 0.2);
-      card.due = Date.now() + LEARN_STEPS[0] * 60000;
-    } else if (rating === 1) {
-      card.interval = Math.max(1, Math.round(card.interval * 1.2));
-      card.ease = Math.max(1.3, card.ease - 0.15);
-      card.due = Date.now() + card.interval * 86400000;
-    } else if (rating === 2) {
-      card.interval = Math.max(1, Math.round(card.interval * card.ease));
-      card.due = Date.now() + card.interval * 86400000;
-    } else {
-      card.interval = Math.max(1, Math.round(card.interval * card.ease * 1.3));
-      card.ease = Math.max(1.3, card.ease + 0.15);
-      card.due = Date.now() + card.interval * 86400000;
-    }
-  }
+function seedData(){
+  const did=uid();
+  data.decks.push({id:did,name:'Starter Pack',grad:GRADS[0],created:Date.now()});
+  [['What is spaced repetition?','A learning technique that reviews material at <b>increasing intervals</b> to improve long-term memory.'],
+   ['Who created the SM-2 algorithm?','<b>Piotr Woźniak</b> developed it in 1987 as part of the SuperMemo project.'],
+   ['What is active recall?','A study method where you <b>actively stimulate memory</b> during learning, rather than passively reviewing.'],
+   ['What is the forgetting curve?','A graph showing how <b>information is lost over time</b> when there is no attempt to retain it.'],
+   ['What does neuroplasticity mean?','The brain\'s ability to <b>reorganize itself</b> by forming new neural connections throughout life.']
+  ].forEach(([f,b])=>data.cards.push(newCard(did,f,b)));
   save();
 }
 
-function getNextInterval(card, rating) {
-  if (card.status === 'new' || card.status === 'learning') {
-    if (rating === 0) return LEARN_STEPS[0] + 'm';
-    if (rating === 1) return LEARN_STEPS[0] + 'm';
-    if (rating === 2) {
-      if ((card.step + 1) >= LEARN_STEPS.length) return '1d';
-      return LEARN_STEPS[card.step + 1] + 'm';
-    }
-    return '4d';
-  } else {
-    if (rating === 0) return LEARN_STEPS[0] + 'm';
-    if (rating === 1) return Math.max(1, Math.round(card.interval * 1.2)) + 'd';
-    if (rating === 2) return Math.max(1, Math.round(card.interval * card.ease)) + 'd';
-    return Math.max(1, Math.round(card.interval * card.ease * 1.3)) + 'd';
+function uid(){return Math.random().toString(36).substr(2,9)+Date.now().toString(36)}
+function newCard(deckId,front,back){return{id:uid(),deckId,front,back,status:'new',interval:0,ease:2.5,due:Date.now(),step:0,reviews:0}}
+function today(){return new Date().toISOString().slice(0,10)}
+function logReview(){const t=today();const e=data.reviewLog.find(r=>r.date===t);if(e)e.count++;else data.reviewLog.push({date:t,count:1})}
+
+// ═══════════════════════════════════════
+// SM-2
+// ═══════════════════════════════════════
+function rateCard(card,rating){
+  card.reviews++;logReview();
+  if(card.status==='new'||card.status==='learning'){
+    if(rating===0){card.step=0;card.status='learning';card.due=Date.now()+LEARN_STEPS[0]*6e4}
+    else if(rating===1){card.status='learning';card.due=Date.now()+LEARN_STEPS[0]*6e4}
+    else if(rating===2){card.step++;if(card.step>=LEARN_STEPS.length){card.status='review';card.interval=1;card.due=Date.now()+864e5}else{card.status='learning';card.due=Date.now()+LEARN_STEPS[card.step]*6e4}}
+    else{card.status='review';card.interval=4;card.ease=Math.max(1.3,card.ease+.15);card.due=Date.now()+4*864e5}
+  }else{
+    if(rating===0){card.status='learning';card.step=0;card.interval=1;card.ease=Math.max(1.3,card.ease-.2);card.due=Date.now()+LEARN_STEPS[0]*6e4}
+    else if(rating===1){card.interval=Math.max(1,Math.round(card.interval*1.2));card.ease=Math.max(1.3,card.ease-.15);card.due=Date.now()+card.interval*864e5}
+    else if(rating===2){card.interval=Math.max(1,Math.round(card.interval*card.ease));card.due=Date.now()+card.interval*864e5}
+    else{card.interval=Math.max(1,Math.round(card.interval*card.ease*1.3));card.ease=Math.max(1.3,card.ease+.15);card.due=Date.now()+card.interval*864e5}
+  }
+  save();
+}
+function getNextInterval(card,r){
+  if(card.status==='new'||card.status==='learning'){
+    if(r<=1)return LEARN_STEPS[0]+'m';if(r===2){return(card.step+1)>=LEARN_STEPS.length?'1d':LEARN_STEPS[card.step+1]+'m'}return'4d';
+  }else{
+    if(r===0)return LEARN_STEPS[0]+'m';if(r===1)return Math.max(1,Math.round(card.interval*1.2))+'d';
+    if(r===2)return Math.max(1,Math.round(card.interval*card.ease))+'d';
+    return Math.max(1,Math.round(card.interval*card.ease*1.3))+'d';
   }
 }
 
-// ═══════════════════════════════════════════
-// NAV & PAGES
-// ═══════════════════════════════════════════
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-
-  const page = document.getElementById('page-' + name);
-  if (page) page.classList.add('active');
-
-  const btns = document.querySelectorAll('.nav-btn');
-  const map = { decks: 0, add: 1, browse: 2, stats: 3 };
-  if (map[name] !== undefined && btns[map[name]]) btns[map[name]].classList.add('active');
-
-  if (name === 'decks') renderDecks();
-  if (name === 'add') populateAddDeckSelect();
-  if (name === 'browse') { populateBrowseDeckSelect(); renderBrowse(); }
-  if (name === 'stats') renderStats();
+// ═══════════════════════════════════════
+// XP SYSTEM
+// ═══════════════════════════════════════
+function addXp(amount){
+  data.player.xp+=amount;data.player.totalXpEarned+=amount;
+  const needed=xpForLevel(data.player.level);
+  if(data.player.xp>=needed){
+    data.player.xp=needed;
+    save();updateXpUI();
+    setTimeout(()=>startChallenge(),400);
+  }else{save();updateXpUI()}
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+function loseXp(amount){
+  data.player.xp=Math.max(0,data.player.xp-amount);
+  save();updateXpUI();
 }
 
-// ═══════════════════════════════════════════
-// DECKS PAGE
-// ═══════════════════════════════════════════
-function renderDecks() {
-  const grid = document.getElementById('deckGrid');
-  let html = '';
-  data.decks.forEach(d => {
-    const cards = data.cards.filter(c => c.deckId === d.id);
-    const now = Date.now();
-    const newC = cards.filter(c => c.status === 'new').length;
-    const learnC = cards.filter(c => c.status === 'learning' && c.due <= now).length;
-    const reviewC = cards.filter(c => c.status === 'review' && c.due <= now).length;
-    html += `
-      <div class="deck-card" style="background:${d.grad}" onclick="startStudy('${d.id}')">
-        <div class="deck-actions">
-          <button class="deck-action-btn" onclick="event.stopPropagation();editDeck('${d.id}')" title="Edit">✏️</button>
-          <button class="deck-action-btn" onclick="event.stopPropagation();deleteDeck('${d.id}')" title="Delete">🗑️</button>
-        </div>
-        <h3>${escHtml(d.name)}</h3>
-        <p>${cards.length} card${cards.length!==1?'s':''}</p>
-        <div class="deck-stats">
-          <span class="deck-stat new-c">New ${newC}</span>
-          <span class="deck-stat learn-c">Learn ${learnC}</span>
-          <span class="deck-stat review-c">Review ${reviewC}</span>
-        </div>
-      </div>`;
+function updateXpUI(){
+  const p=data.player;const needed=xpForLevel(p.level);
+  document.getElementById('xpLv').textContent='Lv.'+p.level;
+  document.getElementById('xpBar').style.width=(p.xp/needed*100)+'%';
+  document.getElementById('xpNums').textContent=p.xp+'/'+needed;
+  const totalItems=p.inventory.reduce((s,i)=>s+i.qty,0);
+  document.getElementById('invBtn').textContent='🎒 ×'+totalItems;
+}
+
+function spawnXpFloat(amount){
+  const el=document.createElement('div');el.className='xp-float';el.textContent='+'+amount+' XP';
+  const bar=document.querySelector('.xp-wrap');const rect=bar.getBoundingClientRect();
+  el.style.left=rect.left+'px';el.style.top=(rect.top-10)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1000);
+}
+
+// ═══════════════════════════════════════
+// CHALLENGE SYSTEM
+// ═══════════════════════════════════════
+let chState=null; // {cards:[], index:0, deckId, frozen:false}
+let chTimerRAF=null;
+let chTimerStart=0;
+let chElapsedBeforeFreeze=0;
+let chFrozen=false;
+
+function getChallengeCards(){
+  const n=challengeCardsNeeded(data.player.level);
+  let pool=[...data.cards];
+  pool.sort((a,b)=>{
+    const sa={new:0,learning:1,review:2};
+    if(sa[a.status]!==sa[b.status])return sa[a.status]-sa[b.status];
+    return a.ease-b.ease;
   });
-  html += `<div class="add-deck-card" onclick="openNewDeckModal()"><div class="plus">+</div><span>New Deck</span></div>`;
-  grid.innerHTML = html;
+  return pool.slice(0,n);
 }
 
-function openNewDeckModal() {
-  const box = document.getElementById('modalBox');
-  box.innerHTML = `
-    <h2 class="modal-title">Create New Deck</h2>
-    <div class="form-group">
-      <label>Deck Name</label>
-      <input type="text" class="form-input" id="newDeckName" placeholder="e.g. Japanese Vocabulary">
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="createDeck()">Create</button>
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-    </div>`;
-  document.getElementById('modal').classList.add('show');
-  setTimeout(() => document.getElementById('newDeckName').focus(), 100);
+function startChallenge(){
+  const cards=getChallengeCards();
+  if(!cards.length){doLevelUp();return}
+  chState={cards,index:0};
+  document.getElementById('challengeOverlay').classList.add('show');
+  showChallengeCard();
 }
 
-function createDeck() {
-  const name = document.getElementById('newDeckName').value.trim();
-  if (!name) return;
-  data.decks.push({ id: uid(), name, grad: GRADIENTS[data.decks.length % GRADIENTS.length], created: Date.now() });
-  save(); closeModal(); renderDecks();
-  showToast('Deck created!');
-}
-
-function editDeck(id) {
-  const deck = data.decks.find(d => d.id === id);
-  if (!deck) return;
-  const box = document.getElementById('modalBox');
-  box.innerHTML = `
-    <h2 class="modal-title">Edit Deck</h2>
-    <div class="form-group">
-      <label>Deck Name</label>
-      <input type="text" class="form-input" id="editDeckName" value="${escHtml(deck.name)}">
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="saveDeckEdit('${id}')">Save</button>
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-    </div>`;
-  document.getElementById('modal').classList.add('show');
-  setTimeout(() => document.getElementById('editDeckName').focus(), 100);
-}
-
-function saveDeckEdit(id) {
-  const deck = data.decks.find(d => d.id === id);
-  const name = document.getElementById('editDeckName').value.trim();
-  if (!name || !deck) return;
-  deck.name = name;
-  save(); closeModal(); renderDecks();
-  showToast('Deck updated!');
-}
-
-function deleteDeck(id) {
-  const deck = data.decks.find(d => d.id === id);
-  if (!deck) return;
-  const box = document.getElementById('modalBox');
-  box.innerHTML = `
-    <h2 class="modal-title">Delete Deck?</h2>
-    <p style="color:#aaa;margin-bottom:20px;">This will permanently delete <strong>"${escHtml(deck.name)}"</strong> and all its cards.</p>
-    <div class="btn-row">
-      <button class="btn btn-pink" onclick="confirmDeleteDeck('${id}')">Delete</button>
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-    </div>`;
-  document.getElementById('modal').classList.add('show');
-}
-
-function confirmDeleteDeck(id) {
-  data.decks = data.decks.filter(d => d.id !== id);
-  data.cards = data.cards.filter(c => c.deckId !== id);
-  save(); closeModal(); renderDecks();
-  showToast('Deck deleted');
-}
-
-function closeModal() { document.getElementById('modal').classList.remove('show'); }
-
-// ═══════════════════════════════════════════
-// ADD CARDS
-// ═══════════════════════════════════════════
-function populateAddDeckSelect() {
-  const sel = document.getElementById('addDeckSelect');
-  sel.innerHTML = data.decks.map(d => `<option value="${d.id}">${escHtml(d.name)}</option>`).join('');
-}
-
-function addCard() {
-  const deckId = document.getElementById('addDeckSelect').value;
-  const front = document.getElementById('addFront').value.trim();
-  const back = document.getElementById('addBack').value.trim();
-  if (!deckId || !front || !back) { showToast('Please fill in all fields'); return; }
-  data.cards.push(newCard(deckId, front, back));
-  save();
-  document.getElementById('addFront').value = '';
-  document.getElementById('addBack').value = '';
-  showToast('Card added! ✨');
-  document.getElementById('addFront').focus();
-}
-
-// ═══════════════════════════════════════════
-// STUDY
-// ═══════════════════════════════════════════
-let studyQueue = [];
-let studyDeckId = null;
-
-function startStudy(deckId) {
-  studyDeckId = deckId;
-  const deck = data.decks.find(d => d.id === deckId);
-  if (!deck) return;
-  showPage('study');
-  // hide study from nav highlighting
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('studyDeckTitle').textContent = deck.name;
-  buildQueue();
-  showNextCard();
-}
-
-function buildQueue() {
-  const now = Date.now();
-  const cards = data.cards.filter(c => c.deckId === studyDeckId);
-  const newCards = cards.filter(c => c.status === 'new').slice(0, 20);
-  const learnCards = cards.filter(c => c.status === 'learning' && c.due <= now);
-  const reviewCards = cards.filter(c => c.status === 'review' && c.due <= now);
-
-  // interleave: learning first, then new, then review
-  studyQueue = [...learnCards, ...newCards, ...reviewCards];
-
-  // update counts
-  updateStudyCounts();
-}
-
-function updateStudyCounts() {
-  const now = Date.now();
-  const cards = data.cards.filter(c => c.deckId === studyDeckId);
-  document.getElementById('spNew').textContent = 'New: ' + cards.filter(c => c.status === 'new').length;
-  document.getElementById('spLearn').textContent = 'Learning: ' + cards.filter(c => c.status === 'learning' && c.due <= now).length;
-  document.getElementById('spReview').textContent = 'Review: ' + cards.filter(c => c.status === 'review' && c.due <= now).length;
-}
-
-function showNextCard() {
-  const container = document.getElementById('studyContent');
-
-  // rebuild queue
-  const now = Date.now();
-  const cards = data.cards.filter(c => c.deckId === studyDeckId);
-  const learnCards = cards.filter(c => c.status === 'learning' && c.due <= now);
-  const newCards = cards.filter(c => c.status === 'new').slice(0, 20);
-  const reviewCards = cards.filter(c => c.status === 'review' && c.due <= now);
-  studyQueue = [...learnCards, ...newCards, ...reviewCards];
-
-  updateStudyCounts();
-
-  if (studyQueue.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="emoji">🎉</div>
-        <p>Congratulations! You've finished all due cards in this deck.</p>
-        <br>
-        <button class="btn btn-primary" onclick="showPage('decks')">Back to Decks</button>
-      </div>`;
-    return;
-  }
-
-  const card = studyQueue[0];
-  container.innerHTML = `
-    <p class="tap-hint">Tap the card to reveal the answer</p>
-    <div class="flashcard-container">
-      <div class="flashcard" id="flashcard" onclick="flipCard()">
-        <div class="flashcard-face flashcard-front">
-          <div class="flashcard-label">Question</div>
-          <div>${escHtml(card.front)}</div>
+function showChallengeCard(){
+  if(chState.index>=chState.cards.length){endChallengeSuccess();return}
+  const card=chState.cards[chState.index];
+  const total=chState.cards.length;
+  const idx=chState.index+1;
+  const p=data.player;
+  const freezeCount=getItemQty('freeze');
+  const burnCount=getItemQty('burn');
+  document.getElementById('challengeInner').innerHTML=`
+    <div class="challenge-title">⚔️ LEVEL UP CHALLENGE</div>
+    <div class="challenge-sub">Card ${idx} of ${total}</div>
+    <div class="flashcard-container" style="max-width:460px;height:280px;margin:0 auto 20px">
+      <div class="flashcard" id="chFlashcard" onclick="chFlip()">
+        <div class="flashcard-face flashcard-front" style="background:linear-gradient(135deg,#c62828,#880e4f)">
+          <div class="flashcard-label">Challenge</div>
+          <div>${card.front}</div>
         </div>
-        <div class="flashcard-face flashcard-back">
+        <div class="flashcard-face flashcard-back" style="background:linear-gradient(135deg,#e65100,#f9a825)">
           <div class="flashcard-label">Answer</div>
-          <div>${escHtml(card.back)}</div>
+          <div>${card.back}</div>
         </div>
       </div>
     </div>
-    <div class="rating-buttons" id="ratingBtns" style="opacity:0; pointer-events:none; transition: opacity .3s;">
-      <button class="rate-btn rate-again" onclick="rate('${card.id}',0)">
-        Again<span class="time">${getNextInterval(card,0)}</span>
-      </button>
-      <button class="rate-btn rate-hard" onclick="rate('${card.id}',1)">
-        Hard<span class="time">${getNextInterval(card,1)}</span>
-      </button>
-      <button class="rate-btn rate-good" onclick="rate('${card.id}',2)">
-        Good<span class="time">${getNextInterval(card,2)}</span>
-      </button>
-      <button class="rate-btn rate-easy" onclick="rate('${card.id}',3)">
-        Easy<span class="time">${getNextInterval(card,3)}</span>
-      </button>
+    <p class="tap-hint" id="chHint">Tap to reveal — answer before time runs out!</p>
+    <div class="rating-buttons" id="chRateBtns" style="opacity:0;pointer-events:none;transition:opacity .3s">
+      <button class="rate-btn rate-again" onclick="chRate(0)">Again</button>
+      <button class="rate-btn rate-hard" onclick="chRate(1)">Hard</button>
+      <button class="rate-btn rate-good" onclick="chRate(2)">Good</button>
+      <button class="rate-btn rate-easy" onclick="chRate(3)">Easy</button>
+    </div>
+    <div class="challenge-items" id="chItems">
+      <button class="challenge-item-btn" onclick="useChFreeze()" id="chFreezeBtn" ${freezeCount?'':'disabled'}>🧊 Freeze ×${freezeCount}</button>
+      <button class="challenge-item-btn" onclick="useChBurn()" id="chBurnBtn" ${burnCount?'':'disabled'}>🔥 Burn ×${burnCount}</button>
     </div>`;
+  startChallengeTimer();
 }
 
-function flipCard() {
-  const fc = document.getElementById('flashcard');
-  if (!fc.classList.contains('flipped')) {
+function chFlip(){
+  const fc=document.getElementById('chFlashcard');
+  if(!fc.classList.contains('flipped')){
     fc.classList.add('flipped');
-    const btns = document.getElementById('ratingBtns');
-    btns.style.opacity = '1';
-    btns.style.pointerEvents = 'auto';
+    document.getElementById('chRateBtns').style.opacity='1';
+    document.getElementById('chRateBtns').style.pointerEvents='auto';
+    document.getElementById('chHint').textContent='Rate your recall!';
   }
 }
 
-function rate(cardId, rating) {
-  const card = data.cards.find(c => c.id === cardId);
-  if (!card) return;
-  rateCard(card, rating);
-  showNextCard();
+function chRate(rating){
+  stopChallengeTimer();
+  if(rating===0){endChallengeFail();return}
+  chState.index++;
+  showChallengeCard();
 }
 
-// ═══════════════════════════════════════════
-// BROWSE
-// ═══════════════════════════════════════════
-function populateBrowseDeckSelect() {
-  const sel = document.getElementById('browseDeckSelect');
-  sel.innerHTML = '<option value="">All Decks</option>' + data.decks.map(d => `<option value="${d.id}">${escHtml(d.name)}</option>`).join('');
-}
-
-function renderBrowse() {
-  const deckId = document.getElementById('browseDeckSelect').value;
-  const search = document.getElementById('browseSearch').value.toLowerCase();
-  let cards = data.cards;
-  if (deckId) cards = cards.filter(c => c.deckId === deckId);
-  if (search) cards = cards.filter(c => c.front.toLowerCase().includes(search) || c.back.toLowerCase().includes(search));
-
-  const body = document.getElementById('browseBody');
-  const empty = document.getElementById('browseEmpty');
-
-  if (cards.length === 0) {
-    body.innerHTML = '';
-    empty.style.display = 'block';
-    return;
+function startChallengeTimer(){
+  chFrozen=false;chElapsedBeforeFreeze=0;chTimerStart=Date.now();
+  const fill=document.getElementById('timerFill');
+  fill.style.width='100%';fill.classList.remove('frozen');
+  document.getElementById('timerTrack').classList.add('show');
+  function tick(){
+    if(chFrozen){chTimerRAF=requestAnimationFrame(tick);return}
+    const elapsed=chElapsedBeforeFreeze+(Date.now()-chTimerStart);
+    const rem=Math.max(0,CHALLENGE_TIME-elapsed);
+    fill.style.width=(rem/CHALLENGE_TIME*100)+'%';
+    if(rem<=0){stopChallengeTimer();endChallengeFail();return}
+    chTimerRAF=requestAnimationFrame(tick);
   }
-  empty.style.display = 'none';
-
-  body.innerHTML = cards.map(c => {
-    const dueStr = c.status === 'new' ? 'New' : new Date(c.due).toLocaleDateString();
-    return `<tr>
-      <td>${escHtml(c.front)}</td>
-      <td>${escHtml(c.back)}</td>
-      <td>${c.status}</td>
-      <td>${dueStr}</td>
-      <td class="td-actions">
-        <button class="small-btn" onclick="editCard('${c.id}')">Edit</button>
-        <button class="small-btn del" onclick="deleteCard('${c.id}')">Del</button>
-      </td>
-    </tr>`;
-  }).join('');
+  chTimerRAF=requestAnimationFrame(tick);
 }
 
-function editCard(id) {
-  const card = data.cards.find(c => c.id === id);
-  if (!card) return;
-  const box = document.getElementById('modalBox');
-  box.innerHTML = `
-    <h2 class="modal-title">Edit Card</h2>
-    <div class="form-group">
-      <label>Front</label>
-      <textarea class="form-input" id="editCardFront">${escHtml(card.front)}</textarea>
-    </div>
-    <div class="form-group">
-      <label>Back</label>
-      <textarea class="form-input" id="editCardBack">${escHtml(card.back)}</textarea>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="saveCardEdit('${id}')">Save</button>
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-    </div>`;
+function stopChallengeTimer(){
+  if(chTimerRAF){cancelAnimationFrame(chTimerRAF);chTimerRAF=null}
+  document.getElementById('timerTrack').classList.remove('show');
+}
+
+function useChFreeze(){
+  if(getItemQty('freeze')<=0||chFrozen)return;
+  consumeItem('freeze');
+  chElapsedBeforeFreeze+=(Date.now()-chTimerStart);
+  chFrozen=true;
+  document.getElementById('timerFill').classList.add('frozen');
+  document.getElementById('chFreezeBtn').disabled=true;
+  document.getElementById('chFreezeBtn').textContent='🧊 Frozen!';
+  document.getElementById('chHint').textContent='⏸️ Timer frozen — take your time!';
+  save();updateXpUI();
+}
+
+function useChBurn(){
+  if(getItemQty('burn')<=0)return;
+  consumeItem('burn');
+  stopChallengeTimer();
+  chState.index++;
+  save();updateXpUI();
+  showChallengeCard();
+}
+
+function endChallengeSuccess(){
+  stopChallengeTimer();
+  document.getElementById('challengeOverlay').classList.remove('show');
+  doLevelUp();
+}
+
+function endChallengeFail(){
+  stopChallengeTimer();
+  document.getElementById('challengeOverlay').classList.remove('show');
+  const loss=Math.floor(xpForLevel(data.player.level)*.4);
+  loseXp(loss);
+  document.getElementById('failInner').innerHTML=`
+    <div class="fail-title">💀 CHALLENGE FAILED</div>
+    <div class="fail-sub">You lost ${loss} XP. Keep studying to try again!</div>
+    <button class="btn btn-pink" onclick="closeFail()" style="margin-top:10px">Continue</button>`;
+  document.getElementById('failOverlay').classList.add('show');
+}
+
+function closeFail(){document.getElementById('failOverlay').classList.remove('show')}
+
+// ═══════════════════════════════════════
+// LEVEL UP & REWARDS
+// ═══════════════════════════════════════
+function doLevelUp(){
+  data.player.level++;data.player.xp=0;save();updateXpUI();
+  const choices=getItemChoices();
+  let html=`<div class="reward-title">🎉 LEVEL ${data.player.level}!</div>
+    <div class="reward-sub">Choose your reward</div><div class="reward-grid">`;
+  choices.forEach(item=>{
+    html+=`<div class="reward-card" onclick="pickReward('${item.id}')">
+      <div class="ri">${item.icon}</div><div class="rn">${item.name}</div><div class="rd">${item.desc}</div></div>`;
+  });
+  html+='</div>';
+  document.getElementById('rewardInner').innerHTML=html;
+  document.getElementById('rewardOverlay').classList.add('show');
+}
+
+function getItemChoices(){
+  if(ITEM_DB.length<=3)return[...ITEM_DB];
+  const s=[...ITEM_DB].sort(()=>Math.random()-.5);return s.slice(0,3);
+}
+
+function pickReward(itemId){
+  addItem(itemId);save();updateXpUI();
+  document.getElementById('rewardOverlay').classList.remove('show');
+  showToast('You got: '+ITEM_DB.find(i=>i.id===itemId).icon+' '+ITEM_DB.find(i=>i.id===itemId).name+'!');
+}
+
+// ═══════════════════════════════════════
+// INVENTORY
+// ═══════════════════════════════════════
+function getItemQty(id){const e=data.player.inventory.find(i=>i.id===id);return e?e.qty:0}
+function addItem(id){const e=data.player.inventory.find(i=>i.id===id);if(e)e.qty++;else data.player.inventory.push({id,qty:1});save()}
+function consumeItem(id){const e=data.player.inventory.find(i=>i.id===id);if(e&&e.qty>0)e.qty--;}
+
+function openInventory(){
+  const box=document.getElementById('modalBox');
+  let html='<h2 class="modal-title">🎒 Inventory</h2>';
+  const inv=data.player.inventory.filter(i=>i.qty>0);
+  if(!inv.length){html+='<p style="color:#666">No items yet. Level up to earn rewards!</p>'}
+  else{
+    html+='<div class="inv-list">';
+    inv.forEach(entry=>{
+      const item=ITEM_DB.find(i=>i.id===entry.id);if(!item)return;
+      html+=`<div class="inv-item"><div class="ii-icon">${item.icon}</div><div class="ii-info"><div class="ii-name">${item.name}</div><div class="ii-desc">${item.desc}</div></div><div class="ii-qty">×${entry.qty}</div></div>`;
+    });
+    html+='</div>';
+  }
+  html+='<br><button class="btn btn-ghost" onclick="closeModal()">Close</button>';
+  box.innerHTML=html;
   document.getElementById('modal').classList.add('show');
 }
 
-function saveCardEdit(id) {
-  const card = data.cards.find(c => c.id === id);
-  if (!card) return;
-  card.front = document.getElementById('editCardFront').value.trim();
-  card.back = document.getElementById('editCardBack').value.trim();
-  save(); closeModal(); renderBrowse();
-  showToast('Card updated!');
+// ═══════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);if(pg)pg.classList.add('active');
+  const map={decks:0,add:1,browse:2,stats:3};
+  const btns=document.querySelectorAll('.nav-btn');
+  if(map[name]!==undefined&&btns[map[name]])btns[map[name]].classList.add('active');
+  if(name==='decks')renderDecks();
+  if(name==='add')populateAddSelects();
+  if(name==='browse'){populateBrowseSelect();renderBrowse()}
+  if(name==='stats')renderStats();
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function showAddTab(which,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  document.getElementById('addSingle').style.display=which==='single'?'':'none';
+  document.getElementById('addBulk').style.display=which==='bulk'?'':'none';
 }
 
-function deleteCard(id) {
-  data.cards = data.cards.filter(c => c.id !== id);
-  save(); renderBrowse();
-  showToast('Card deleted');
+// ═══════════════════════════════════════
+// DECKS
+// ═══════════════════════════════════════
+function renderDecks(){
+  const g=document.getElementById('deckGrid');let h='';
+  data.decks.forEach(d=>{
+    const cards=data.cards.filter(c=>c.deckId===d.id);const now=Date.now();
+    const nc=cards.filter(c=>c.status==='new').length;
+    const lc=cards.filter(c=>c.status==='learning'&&c.due<=now).length;
+    const rc=cards.filter(c=>c.status==='review'&&c.due<=now).length;
+    h+=`<div class="deck-card" style="background:${d.grad}" onclick="startStudy('${d.id}')">
+      <div class="deck-actions">
+        <button class="deck-action-btn" onclick="event.stopPropagation();editDeck('${d.id}')" title="Edit">✏️</button>
+        <button class="deck-action-btn" onclick="event.stopPropagation();deleteDeck('${d.id}')" title="Delete">🗑️</button>
+      </div>
+      <h3>${esc(d.name)}</h3><p>${cards.length} card${cards.length!==1?'s':''}</p>
+      <div class="deck-stats"><span class="deck-stat nc">New ${nc}</span><span class="deck-stat lc">Learn ${lc}</span><span class="deck-stat rc">Review ${rc}</span></div>
+    </div>`;
+  });
+  h+='<div class="add-deck-card" onclick="openNewDeckModal()"><div class="plus">+</div><span>New Deck</span></div>';
+  g.innerHTML=h;
+}
+function openNewDeckModal(){
+  document.getElementById('modalBox').innerHTML=`<h2 class="modal-title">Create New Deck</h2>
+    <div class="form-group"><label>Deck Name</label><input type="text" class="form-input" id="newDeckName" placeholder="e.g. Biology 101"></div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="createDeck()">Create</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`;
+  document.getElementById('modal').classList.add('show');
+  setTimeout(()=>document.getElementById('newDeckName').focus(),100);
+}
+function createDeck(){
+  const n=document.getElementById('newDeckName').value.trim();if(!n)return;
+  data.decks.push({id:uid(),name:n,grad:GRADS[data.decks.length%GRADS.length],created:Date.now()});
+  save();closeModal();renderDecks();showToast('Deck created!');
+}
+function editDeck(id){
+  const d=data.decks.find(x=>x.id===id);if(!d)return;
+  document.getElementById('modalBox').innerHTML=`<h2 class="modal-title">Edit Deck</h2>
+    <div class="form-group"><label>Deck Name</label><input type="text" class="form-input" id="editDN" value="${esc(d.name)}"></div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="saveDeckEdit('${id}')">Save</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`;
+  document.getElementById('modal').classList.add('show');
+  setTimeout(()=>document.getElementById('editDN').focus(),100);
+}
+function saveDeckEdit(id){const d=data.decks.find(x=>x.id===id);const n=document.getElementById('editDN').value.trim();if(!n||!d)return;d.name=n;save();closeModal();renderDecks();showToast('Deck updated!')}
+function deleteDeck(id){
+  const d=data.decks.find(x=>x.id===id);if(!d)return;
+  document.getElementById('modalBox').innerHTML=`<h2 class="modal-title">Delete Deck?</h2>
+    <p style="color:#aaa;margin-bottom:18px">Permanently delete <strong>"${esc(d.name)}"</strong> and all its cards?</p>
+    <div class="btn-row"><button class="btn btn-pink" onclick="confirmDelDeck('${id}')">Delete</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`;
+  document.getElementById('modal').classList.add('show');
+}
+function confirmDelDeck(id){data.decks=data.decks.filter(x=>x.id!==id);data.cards=data.cards.filter(c=>c.deckId!==id);save();closeModal();renderDecks();showToast('Deck deleted')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+
+// ═══════════════════════════════════════
+// ADD CARDS
+// ═══════════════════════════════════════
+function populateAddSelects(){
+  const opts=data.decks.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('');
+  document.getElementById('addDeckSel').innerHTML=opts;
+  document.getElementById('importDeckSel').innerHTML=opts;
+}
+function addCard(){
+  const dk=document.getElementById('addDeckSel').value;
+  const f=document.getElementById('addFront').value.trim();
+  const b=document.getElementById('addBack').value.trim();
+  if(!dk||!f||!b){showToast('Please fill all fields');return}
+  data.cards.push(newCard(dk,f,b));save();
+  document.getElementById('addFront').value='';document.getElementById('addBack').value='';
+  showToast('Card added! ✨');document.getElementById('addFront').focus();
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
+// BULK IMPORT
+// ═══════════════════════════════════════
+function bulkImport(){
+  const dk=document.getElementById('importDeckSel').value;
+  if(!dk){showToast('Select a deck first');return}
+  const raw=document.getElementById('importText').value;
+  if(!raw.trim()){showToast('Paste some cards first');return}
+  const lines=raw.split('\n').filter(l=>l.trim());
+  let count=0;
+  lines.forEach(line=>{
+    const idx=line.indexOf('|');
+    if(idx<0)return;
+    const front=line.substring(0,idx).trim();
+    const back=line.substring(idx+1).trim();
+    if(front&&back){data.cards.push(newCard(dk,front,back));count++}
+  });
+  save();
+  document.getElementById('importText').value='';
+  showToast(`Imported ${count} card${count!==1?'s':''}! 🎉`);
+}
+
+// ═══════════════════════════════════════
+// STUDY
+// ═══════════════════════════════════════
+let studyDeckId=null;
+
+function startStudy(deckId){
+  studyDeckId=deckId;
+  const deck=data.decks.find(d=>d.id===deckId);if(!deck)return;
+  showPage('study');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('studyTitle').textContent=deck.name;
+  showNextCard();
+}
+function updateStudyCounts(){
+  const now=Date.now();const cards=data.cards.filter(c=>c.deckId===studyDeckId);
+  document.getElementById('spN').textContent='New: '+cards.filter(c=>c.status==='new').length;
+  document.getElementById('spL').textContent='Learning: '+cards.filter(c=>c.status==='learning'&&c.due<=now).length;
+  document.getElementById('spR').textContent='Review: '+cards.filter(c=>c.status==='review'&&c.due<=now).length;
+}
+function getStudyQueue(){
+  const now=Date.now();const cards=data.cards.filter(c=>c.deckId===studyDeckId);
+  const l=cards.filter(c=>c.status==='learning'&&c.due<=now);
+  const n=cards.filter(c=>c.status==='new').slice(0,20);
+  const r=cards.filter(c=>c.status==='review'&&c.due<=now);
+  return[...l,...n,...r];
+}
+function showNextCard(){
+  const cont=document.getElementById('studyContent');
+  updateStudyCounts();
+  const queue=getStudyQueue();
+  if(!queue.length){
+    cont.innerHTML=`<div class="empty-state"><div class="emoji">🎉</div><p>All done! No more cards due.</p><br><button class="btn btn-primary" onclick="showPage('decks')">Back to Decks</button></div>`;
+    return;
+  }
+  const card=queue[0];
+  cont.innerHTML=`
+    <p class="tap-hint">Tap card to reveal — Space / 1-4 for shortcuts</p>
+    <div class="flashcard-container"><div class="flashcard" id="flashcard" onclick="flipStudy()">
+      <div class="flashcard-face flashcard-front"><div class="flashcard-label">Question</div><div>${card.front}</div></div>
+      <div class="flashcard-face flashcard-back"><div class="flashcard-label">Answer</div><div>${card.back}</div></div>
+    </div></div>
+    <div class="rating-buttons" id="rateBtns" style="opacity:0;pointer-events:none;transition:opacity .3s">
+      <button class="rate-btn rate-again" onclick="rateStudy('${card.id}',0)">Again<span class="time">${getNextInterval(card,0)}</span></button>
+      <button class="rate-btn rate-hard" onclick="rateStudy('${card.id}',1)">Hard<span class="time">${getNextInterval(card,1)}</span></button>
+      <button class="rate-btn rate-good" onclick="rateStudy('${card.id}',2)">Good<span class="time">${getNextInterval(card,2)}</span></button>
+      <button class="rate-btn rate-easy" onclick="rateStudy('${card.id}',3)">Easy<span class="time">${getNextInterval(card,3)}</span></button>
+    </div>`;
+}
+function flipStudy(){
+  const fc=document.getElementById('flashcard');
+  if(!fc.classList.contains('flipped')){fc.classList.add('flipped');const b=document.getElementById('rateBtns');b.style.opacity='1';b.style.pointerEvents='auto'}
+}
+function rateStudy(cardId,rating){
+  const card=data.cards.find(c=>c.id===cardId);if(!card)return;
+  rateCard(card,rating);
+  const xp=XP_PER_RATE[rating];
+  spawnXpFloat(xp);
+  addXp(xp);
+  showNextCard();
+}
+
+// ═══════════════════════════════════════
+// BROWSE
+// ═══════════════════════════════════════
+function populateBrowseSelect(){
+  document.getElementById('browseDeckSel').innerHTML='<option value="">All Decks</option>'+data.decks.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('');
+}
+function renderBrowse(){
+  const dk=document.getElementById('browseDeckSel').value;
+  const q=document.getElementById('browseSearch').value.toLowerCase();
+  let cards=data.cards;
+  if(dk)cards=cards.filter(c=>c.deckId===dk);
+  if(q)cards=cards.filter(c=>stripTags(c.front).toLowerCase().includes(q)||stripTags(c.back).toLowerCase().includes(q));
+  const body=document.getElementById('browseBody');const empty=document.getElementById('browseEmpty');
+  if(!cards.length){body.innerHTML='';empty.style.display='block';return}
+  empty.style.display='none';
+  body.innerHTML=cards.map(c=>{
+    const due=c.status==='new'?'New':new Date(c.due).toLocaleDateString();
+    return`<tr><td>${esc(stripTags(c.front))}</td><td>${esc(stripTags(c.back))}</td><td>${c.status}</td><td>${due}</td><td class="td-actions"><button class="small-btn" onclick="editCardModal('${c.id}')">Edit</button><button class="small-btn del" onclick="deleteCard('${c.id}')">Del</button></td></tr>`;
+  }).join('');
+}
+function editCardModal(id){
+  const c=data.cards.find(x=>x.id===id);if(!c)return;
+  document.getElementById('modalBox').innerHTML=`<h2 class="modal-title">Edit Card</h2>
+    <div class="form-group"><label>Front</label><textarea class="form-input" id="ecF">${esc(c.front)}</textarea></div>
+    <div class="form-group"><label>Back</label><textarea class="form-input" id="ecB">${esc(c.back)}</textarea></div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="saveCardEdit('${id}')">Save</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>`;
+  document.getElementById('modal').classList.add('show');
+}
+function saveCardEdit(id){
+  const c=data.cards.find(x=>x.id===id);if(!c)return;
+  c.front=document.getElementById('ecF').value.trim();c.back=document.getElementById('ecB').value.trim();
+  save();closeModal();renderBrowse();showToast('Card updated!');
+}
+function deleteCard(id){data.cards=data.cards.filter(c=>c.id!==id);save();renderBrowse();showToast('Card deleted')}
+
+// ═══════════════════════════════════════
 // STATS
-// ═══════════════════════════════════════════
-function renderStats() {
-  const totalCards = data.cards.length;
-  const newC = data.cards.filter(c => c.status === 'new').length;
-  const learnC = data.cards.filter(c => c.status === 'learning').length;
-  const reviewC = data.cards.filter(c => c.status === 'review').length;
-  const totalReviews = data.cards.reduce((s,c) => s + c.reviews, 0);
-  const matureCards = data.cards.filter(c => c.interval >= 21).length;
-
-  const grid = document.getElementById('statsGrid');
-  grid.innerHTML = `
-    <div class="stat-card" style="background:var(--grad2)"><div class="num">${totalCards}</div><div class="lbl">Total Cards</div></div>
-    <div class="stat-card" style="background:var(--grad1)"><div class="num">${totalReviews}</div><div class="lbl">Total Reviews</div></div>
-    <div class="stat-card" style="background:var(--grad3);color:#111"><div class="num">${matureCards}</div><div class="lbl">Mature Cards</div></div>
-    <div class="stat-card" style="background:var(--grad4);color:#111"><div class="num">${data.decks.length}</div><div class="lbl">Decks</div></div>
-  `;
-
-  // Heatmap last 30 days
-  const heatmap = document.getElementById('heatmap');
-  let cells = '';
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().slice(0,10);
-    const entry = data.reviewLog.find(r => r.date === dateStr);
-    const count = entry ? entry.count : 0;
-    let color = 'rgba(255,255,255,0.04)';
-    if (count > 0) color = 'rgba(67,233,123,0.25)';
-    if (count >= 5) color = 'rgba(67,233,123,0.45)';
-    if (count >= 15) color = 'rgba(67,233,123,0.65)';
-    if (count >= 30) color = 'rgba(67,233,123,0.9)';
-    cells += `<div class="heatmap-cell" style="background:${color}" title="${dateStr}: ${count} reviews"></div>`;
+// ═══════════════════════════════════════
+function renderStats(){
+  const p=data.player;const tc=data.cards.length;
+  const tr=data.cards.reduce((s,c)=>s+c.reviews,0);
+  const mc=data.cards.filter(c=>c.interval>=21).length;
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-card" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"><div class="num">${tc}</div><div class="lbl">Total Cards</div></div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#f093fb,#f5576c)"><div class="num">${tr}</div><div class="lbl">Total Reviews</div></div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#43e97b,#38f9d7);color:#111"><div class="num">${mc}</div><div class="lbl">Mature Cards</div></div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#f7971e,#ffd200);color:#111"><div class="num">${p.level}</div><div class="lbl">Player Level</div></div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#fa709a,#fee140);color:#111"><div class="num">${p.totalXpEarned}</div><div class="lbl">Lifetime XP</div></div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#667eea,#764ba2)"><div class="num">${data.decks.length}</div><div class="lbl">Decks</div></div>`;
+  let cells='';
+  for(let i=29;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const ds=d.toISOString().slice(0,10);
+    const e=data.reviewLog.find(r=>r.date===ds);const cnt=e?e.count:0;
+    let col='rgba(255,255,255,.04)';
+    if(cnt>0)col='rgba(67,233,123,.25)';if(cnt>=5)col='rgba(67,233,123,.45)';if(cnt>=15)col='rgba(67,233,123,.65)';if(cnt>=30)col='rgba(67,233,123,.9)';
+    cells+=`<div class="heatmap-cell" style="background:${col}" title="${ds}: ${cnt} reviews"></div>`;
   }
-  heatmap.innerHTML = cells;
+  document.getElementById('heatmap').innerHTML=cells;
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
 // UTILS
-// ═══════════════════════════════════════════
-function escHtml(s) {
-  const div = document.createElement('div');
-  div.textContent = s;
-  return div.innerHTML;
-}
+// ═══════════════════════════════════════
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function stripTags(s){const d=document.createElement('div');d.innerHTML=s;return d.textContent||d.innerText||''}
 
-// close modal on overlay click
-document.getElementById('modal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+
+document.addEventListener('keydown',function(e){
+  // Normal study shortcuts
+  const fc=document.getElementById('flashcard');
+  if(fc&&!fc.classList.contains('flipped')&&e.code==='Space'){e.preventDefault();flipStudy()}
+  if(fc&&fc.classList.contains('flipped')){
+    if(e.key==='1')document.querySelector('#rateBtns .rate-again')?.click();
+    if(e.key==='2')document.querySelector('#rateBtns .rate-hard')?.click();
+    if(e.key==='3')document.querySelector('#rateBtns .rate-good')?.click();
+    if(e.key==='4')document.querySelector('#rateBtns .rate-easy')?.click();
+  }
+  // Challenge shortcuts
+  const chfc=document.getElementById('chFlashcard');
+  if(chfc&&!chfc.classList.contains('flipped')&&e.code==='Space'){e.preventDefault();chFlip()}
+  if(chfc&&chfc.classList.contains('flipped')){
+    if(e.key==='1')document.querySelector('#chRateBtns .rate-again')?.click();
+    if(e.key==='2')document.querySelector('#chRateBtns .rate-hard')?.click();
+    if(e.key==='3')document.querySelector('#chRateBtns .rate-good')?.click();
+    if(e.key==='4')document.querySelector('#chRateBtns .rate-easy')?.click();
+  }
 });
 
-// keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-  const fc = document.getElementById('flashcard');
-  if (fc && !fc.classList.contains('flipped') && e.code === 'Space') {
-    e.preventDefault();
-    flipCard();
-  }
-  if (fc && fc.classList.contains('flipped')) {
-    if (e.key === '1') document.querySelector('.rate-again')?.click();
-    if (e.key === '2') document.querySelector('.rate-hard')?.click();
-    if (e.key === '3') document.querySelector('.rate-good')?.click();
-    if (e.key === '4') document.querySelector('.rate-easy')?.click();
-  }
-});
-
+// ═══════════════════════════════════════
 // INIT
+// ═══════════════════════════════════════
 load();
+updateXpUI();
 renderDecks();
 </script>
 </body>
