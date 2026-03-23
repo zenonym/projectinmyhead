@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Test Website</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        /* Header Styling */
+        header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 1.5rem 0;
+            text-align: center;
+        }
+
+        header h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Navigation Styling */
+        nav {
+            background-color: #34495e;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            padding: 0.5rem 0;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #2c3e50;
+        }
+
+        /* Main Layout */
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            gap: 2rem;
+        }
+
+        /* Main Content Area */
+        main {
+            flex: 3;
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        main h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        main p {
+            margin-bottom: 1rem;
+        }
+
+        /* Sidebar Styling */
+        aside {
+            flex: 1;
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 250px;
+        }
+
+        aside h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        aside ul {
+            list-style-type: none;
+        }
+
+        aside ul li {
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Footer Styling */
+        footer {
+            background-color: #2c3e50;
+            color: #fff;
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            nav a {
+                margin: 0.2rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Welcome to My Test Website</h1>
+        <p>A simple, responsive template for testing purposes</p>
+    </header>
+
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="container">
+        <main id="home">
+            <h2>Hello, World!</h2>
+            <p>This is the main content area of the website. You can use this space to add articles, images, or any other information you want to display to your users.</p>
+            <p>The layout is built using CSS Flexbox, which makes it easy to align items and ensure the website looks great on both desktop computers and mobile devices. Try resizing your browser window to see how the layout adapts!</p>
+            
+            <h2 id="about" style="margin-top: 2rem;">About Us</h2>
+            <p>This section can contain information about you or your project. The smooth scrolling and clean typography make it easy to read.</p>
+        </main>
+
+        <aside>
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="#">Latest News</a></li>
+                <li><a href="#">Documentation</a></li>
+                <li><a href="#">Community Forum</a></li>
+                <li><a href="#">Support</a></li>
+            </ul>
+
+            <h3 style="margin-top: 2rem;">Updates</h3>
+            <p style="font-size: 0.9rem; color: #666;">Version 1.0 has just been released. Check out the new features!</p>
+        </aside>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 My Test Website. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
