@@ -1,176 +1,931 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basic Test Website</title>
-    <style>
-        /* Basic Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlashForge — Spaced Repetition Flashcards</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            background-color: #f4f4f9;
-            color: #333;
-        }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* Header Styling */
-        header {
-            background-color: #2c3e50;
-            color: #fff;
-            padding: 1.5rem 0;
-            text-align: center;
-        }
+  :root {
+    --grad1: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --grad2: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --grad3: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    --grad4: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    --grad5: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+    --grad6: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);
+    --grad7: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradbg: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  }
 
-        header h1 {
-            margin-bottom: 0.5rem;
-        }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--gradbg);
+    min-height: 100vh;
+    color: #fff;
+    overflow-x: hidden;
+  }
 
-        /* Navigation Styling */
-        nav {
-            background-color: #34495e;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            padding: 0.5rem 0;
-        }
+  /* ── NAV ── */
+  .navbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo {
+    font-size: 1.5rem; font-weight: 900;
+    background: var(--grad4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .nav-links { display: flex; gap: 6px; }
+  .nav-btn {
+    padding: 8px 18px; border-radius: 12px; border: none; cursor: pointer;
+    font-family: inherit; font-weight: 600; font-size: .85rem;
+    background: rgba(255,255,255,0.08); color: #ccc; transition: all .25s;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    background: rgba(255,255,255,0.18); color: #fff;
+  }
+  .nav-btn.active {
+    background: var(--grad1); color: #fff;
+    -webkit-text-fill-color: #fff;
+  }
 
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            margin: 0 0.5rem;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
+  /* ── PAGES ── */
+  .page { display: none; padding: 24px; max-width: 900px; margin: 0 auto; }
+  .page.active { display: block; }
 
-        nav a:hover {
-            background-color: #2c3e50;
-        }
+  /* ── HEADINGS ── */
+  .section-title {
+    font-size: 1.8rem; font-weight: 800; margin-bottom: 8px;
+    background: var(--grad2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .section-sub { color: #8888aa; margin-bottom: 24px; font-size: .95rem; }
 
-        /* Main Layout */
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-            gap: 2rem;
-        }
+  /* ── CARDS / PANELS ── */
+  .glass {
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 24px;
+  }
 
-        /* Main Content Area */
-        main {
-            flex: 3;
-            background: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+  /* ── DECK GRID ── */
+  .deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .deck-card {
+    border-radius: 20px; padding: 24px; cursor: pointer;
+    transition: transform .25s, box-shadow .25s; position: relative; overflow: hidden;
+  }
+  .deck-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+  .deck-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+  .deck-card p { font-size: .8rem; opacity: .85; }
+  .deck-stats { display: flex; gap: 12px; margin-top: 14px; }
+  .deck-stat {
+    background: rgba(0,0,0,0.25); border-radius: 10px; padding: 6px 12px; font-size: .75rem; font-weight: 600;
+  }
+  .deck-stat.new-c { color: #4facfe; }
+  .deck-stat.learn-c { color: #f5576c; }
+  .deck-stat.review-c { color: #43e97b; }
+  .deck-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; }
+  .deck-action-btn {
+    width: 28px; height: 28px; border-radius: 8px; border: none; cursor: pointer;
+    background: rgba(0,0,0,0.3); color: #fff; font-size: .8rem; transition: background .2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .deck-action-btn:hover { background: rgba(0,0,0,0.6); }
 
-        main h2 {
-            color: #2c3e50;
-            margin-bottom: 1rem;
-        }
+  .add-deck-card {
+    border: 2px dashed rgba(255,255,255,0.15); border-radius: 20px;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    padding: 24px; cursor: pointer; transition: all .25s; min-height: 160px;
+  }
+  .add-deck-card:hover { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.04); }
+  .add-deck-card .plus { font-size: 2rem; opacity: .4; margin-bottom: 6px; }
+  .add-deck-card span { opacity: .4; font-size: .85rem; font-weight: 600; }
 
-        main p {
-            margin-bottom: 1rem;
-        }
+  /* ── FORMS ── */
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-weight: 600; font-size: .85rem; margin-bottom: 6px; color: #aaa; }
+  .form-input {
+    width: 100%; padding: 12px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06); color: #fff; font-family: inherit; font-size: .95rem;
+    transition: border-color .2s; outline: none;
+  }
+  .form-input:focus { border-color: rgba(79,172,254,0.5); }
+  .form-input::placeholder { color: #555; }
+  textarea.form-input { min-height: 100px; resize: vertical; }
 
-        /* Sidebar Styling */
-        aside {
-            flex: 1;
-            background: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            min-width: 250px;
-        }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    padding: 12px 28px; border-radius: 14px; border: none; cursor: pointer;
+    font-family: inherit; font-weight: 700; font-size: .9rem; color: #fff;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+  .btn-primary { background: var(--grad2); }
+  .btn-pink { background: var(--grad1); }
+  .btn-green { background: var(--grad3); color: #111; }
+  .btn-amber { background: var(--grad4); color: #111; }
+  .btn-ghost {
+    background: rgba(255,255,255,0.08); color: #aaa;
+  }
 
-        aside h3 {
-            color: #2c3e50;
-            margin-bottom: 1rem;
-        }
+  /* ── STUDY ── */
+  .study-area { display: flex; flex-direction: column; align-items: center; padding-top: 10px; }
+  .study-progress {
+    width: 100%; max-width: 500px; display: flex; gap: 16px; justify-content: center; margin-bottom: 24px;
+  }
+  .study-progress .sp-item { font-size: .85rem; font-weight: 700; }
+  .sp-new { color: #4facfe; }
+  .sp-learn { color: #f5576c; }
+  .sp-review { color: #43e97b; }
 
-        aside ul {
-            list-style-type: none;
-        }
+  .flashcard-container { perspective: 1200px; width: 100%; max-width: 500px; height: 320px; margin-bottom: 28px; }
+  .flashcard {
+    width: 100%; height: 100%; position: relative;
+    transform-style: preserve-3d; transition: transform .5s cubic-bezier(.4,.2,.2,1); cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .flashcard-face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; border-radius: 24px; padding: 32px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; font-size: 1.25rem; font-weight: 600;
+    word-break: break-word; overflow-y: auto;
+  }
+  .flashcard-front { background: var(--grad7); }
+  .flashcard-back { background: var(--grad6); transform: rotateY(180deg); }
+  .flashcard-label {
+    position: absolute; top: 14px; left: 20px;
+    font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; opacity: .6;
+  }
 
-        aside ul li {
-            margin-bottom: 0.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #eee;
-        }
+  .rating-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .rate-btn {
+    padding: 14px 20px; border-radius: 16px; border: none; cursor: pointer;
+    font-family: inherit; font-weight: 700; font-size: .85rem; color: #fff; min-width: 90px;
+    transition: transform .2s, box-shadow .2s; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .rate-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .rate-btn .time { font-size: .7rem; opacity: .7; font-weight: 500; }
+  .rate-again { background: linear-gradient(135deg, #f5576c, #c62828); }
+  .rate-hard { background: linear-gradient(135deg, #fa709a, #f57c00); }
+  .rate-good { background: linear-gradient(135deg, #4facfe, #1565c0); }
+  .rate-easy { background: linear-gradient(135deg, #43e97b, #1b8a3d); }
+  .tap-hint { color: #666; font-size: .8rem; margin-bottom: 16px; }
 
-        /* Footer Styling */
-        footer {
-            background-color: #2c3e50;
-            color: #fff;
-            text-align: center;
-            padding: 1.5rem 0;
-            margin-top: 2rem;
-        }
+  /* ── BROWSE ── */
+  .browse-toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .browse-toolbar select { 
+    padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06); color: #fff; font-family: inherit; font-size: .85rem;
+    outline: none; cursor: pointer;
+  }
+  .browse-toolbar select option { background: #1a1a2e; }
+  .browse-search {
+    flex: 1; min-width: 150px; padding: 10px 14px; border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06);
+    color: #fff; font-family: inherit; font-size: .85rem; outline: none;
+  }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-            nav {
-                flex-direction: column;
-                align-items: center;
-            }
-            nav a {
-                margin: 0.2rem 0;
-            }
-        }
-    </style>
+  .card-table { width: 100%; border-collapse: collapse; }
+  .card-table th {
+    text-align: left; padding: 10px 14px; font-size: .75rem; font-weight: 700;
+    color: #666; text-transform: uppercase; letter-spacing: 1px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .card-table td {
+    padding: 12px 14px; font-size: .85rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+    max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .card-table tr:hover td { background: rgba(255,255,255,0.03); }
+  .card-table .td-actions { display: flex; gap: 6px; }
+  .small-btn {
+    padding: 5px 12px; border-radius: 8px; border: none; cursor: pointer;
+    font-family: inherit; font-size: .75rem; font-weight: 600; color: #fff;
+    background: rgba(255,255,255,0.1); transition: background .2s;
+  }
+  .small-btn:hover { background: rgba(255,255,255,0.2); }
+  .small-btn.del:hover { background: rgba(245,87,108,0.5); }
+
+  /* ── STATS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat-card {
+    border-radius: 18px; padding: 20px; text-align: center;
+  }
+  .stat-card .num { font-size: 2rem; font-weight: 900; }
+  .stat-card .lbl { font-size: .75rem; opacity: .7; margin-top: 2px; font-weight: 600; }
+
+  .heatmap-row { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 10px; }
+  .heatmap-cell {
+    width: 16px; height: 16px; border-radius: 4px; background: rgba(255,255,255,0.06);
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);
+    z-index: 200; display: none; align-items: center; justify-content: center; padding: 24px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #1e1e3a; border-radius: 24px; padding: 32px; width: 100%; max-width: 480px;
+    border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto;
+  }
+  .modal-title {
+    font-size: 1.3rem; font-weight: 800; margin-bottom: 20px;
+    background: var(--grad5); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: #555;
+  }
+  .empty-state .emoji { font-size: 3rem; margin-bottom: 12px; }
+  .empty-state p { font-size: .95rem; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    padding: 12px 28px; border-radius: 14px; font-weight: 600; font-size: .85rem;
+    background: var(--grad3); color: #111; z-index: 300; transition: transform .3s;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .navbar { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+    .nav-links { width: 100%; justify-content: center; }
+    .page { padding: 16px; }
+    .flashcard-container { height: 260px; }
+    .rating-buttons { gap: 6px; }
+    .rate-btn { min-width: 70px; padding: 12px 10px; font-size: .8rem; }
+    .deck-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+</style>
 </head>
 <body>
 
-    <header>
-        <h1>Welcome to My Test Website</h1>
-        <p>A simple, responsive template for testing purposes</p>
-    </header>
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo">⚡ FlashForge</div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('decks')">Decks</button>
+    <button class="nav-btn" onclick="showPage('add')">+ Add</button>
+    <button class="nav-btn" onclick="showPage('browse')">Browse</button>
+    <button class="nav-btn" onclick="showPage('stats')">Stats</button>
+  </div>
+</nav>
 
-    <nav>
-        <a href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#services">Services</a>
-        <a href="#contact">Contact</a>
-    </nav>
+<!-- DECKS PAGE -->
+<div id="page-decks" class="page active">
+  <h1 class="section-title">Your Decks</h1>
+  <p class="section-sub">Select a deck to start studying</p>
+  <div class="deck-grid" id="deckGrid"></div>
+</div>
 
-    <div class="container">
-        <main id="home">
-            <h2>Hello, World!</h2>
-            <p>This is the main content area of the website. You can use this space to add articles, images, or any other information you want to display to your users.</p>
-            <p>The layout is built using CSS Flexbox, which makes it easy to align items and ensure the website looks great on both desktop computers and mobile devices. Try resizing your browser window to see how the layout adapts!</p>
-            
-            <h2 id="about" style="margin-top: 2rem;">About Us</h2>
-            <p>This section can contain information about you or your project. The smooth scrolling and clean typography make it easy to read.</p>
-        </main>
-
-        <aside>
-            <h3>Quick Links</h3>
-            <ul>
-                <li><a href="#">Latest News</a></li>
-                <li><a href="#">Documentation</a></li>
-                <li><a href="#">Community Forum</a></li>
-                <li><a href="#">Support</a></li>
-            </ul>
-
-            <h3 style="margin-top: 2rem;">Updates</h3>
-            <p style="font-size: 0.9rem; color: #666;">Version 1.0 has just been released. Check out the new features!</p>
-        </aside>
+<!-- ADD PAGE -->
+<div id="page-add" class="page">
+  <h1 class="section-title">Add New Cards</h1>
+  <p class="section-sub">Create flashcards for your decks</p>
+  <div class="glass">
+    <div class="form-group">
+      <label>Deck</label>
+      <select id="addDeckSelect" class="form-input"></select>
     </div>
+    <div class="form-group">
+      <label>Front (Question)</label>
+      <textarea id="addFront" class="form-input" placeholder="Type the question or prompt..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Back (Answer)</label>
+      <textarea id="addBack" class="form-input" placeholder="Type the answer..."></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="addCard()">Add Card</button>
+    </div>
+  </div>
+</div>
 
-    <footer>
-        <p>&copy; 2026 My Test Website. All rights reserved.</p>
-    </footer>
+<!-- STUDY PAGE -->
+<div id="page-study" class="page">
+  <div class="study-area">
+    <h1 class="section-title" id="studyDeckTitle">Studying</h1>
+    <div class="study-progress">
+      <span class="sp-item sp-new" id="spNew">New: 0</span>
+      <span class="sp-item sp-learn" id="spLearn">Learning: 0</span>
+      <span class="sp-item sp-review" id="spReview">Review: 0</span>
+    </div>
+    <div id="studyContent"></div>
+  </div>
+</div>
 
+<!-- BROWSE PAGE -->
+<div id="page-browse" class="page">
+  <h1 class="section-title">Browse Cards</h1>
+  <p class="section-sub">Search and manage all your cards</p>
+  <div class="browse-toolbar">
+    <select id="browseDeckSelect" onchange="renderBrowse()"></select>
+    <input type="text" class="browse-search" id="browseSearch" placeholder="Search cards..." oninput="renderBrowse()">
+  </div>
+  <div class="glass" style="padding:0; overflow-x:auto;">
+    <table class="card-table">
+      <thead><tr><th>Front</th><th>Back</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead>
+      <tbody id="browseBody"></tbody>
+    </table>
+  </div>
+  <div id="browseEmpty" class="empty-state" style="display:none;">
+    <div class="emoji">🔍</div><p>No cards found</p>
+  </div>
+</div>
+
+<!-- STATS PAGE -->
+<div id="page-stats" class="page">
+  <h1 class="section-title">Statistics</h1>
+  <p class="section-sub">Your learning progress at a glance</p>
+  <div class="stats-grid" id="statsGrid"></div>
+  <div class="glass">
+    <h3 style="margin-bottom:12px; font-weight:700;">Review Activity (Last 30 Days)</h3>
+    <div class="heatmap-row" id="heatmap"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATA LAYER
+// ═══════════════════════════════════════════
+const GRADIENTS = [
+  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+  'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+  'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+  'linear-gradient(135deg, #fccb90 0%, #d57eeb 100%)',
+  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)',
+  'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)',
+  'linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%)',
+];
+
+let data = {
+  decks: [],
+  cards: [],
+  reviewLog: [] // { date: 'YYYY-MM-DD', count: N }
+};
+
+function save() {
+  try { localStorage.setItem('flashforge_data', JSON.stringify(data)); } catch(e) {}
+}
+function load() {
+  try {
+    const d = localStorage.getItem('flashforge_data');
+    if (d) data = JSON.parse(d);
+  } catch(e) {}
+  if (!data.decks.length) {
+    // seed sample deck
+    const deckId = uid();
+    data.decks.push({ id: deckId, name: 'Sample Deck', grad: GRADIENTS[0], created: Date.now() });
+    const sampleCards = [
+      ['What is spaced repetition?','A learning technique that reviews material at increasing intervals to improve long-term memory.'],
+      ['Who created the SM-2 algorithm?','Piotr Woźniak developed it in 1987 as part of the SuperMemo project.'],
+      ['What does "recall" mean?','The ability to retrieve information from memory without cues.'],
+      ['What is active recall?','A study method where you actively stimulate memory during learning, rather than passively reviewing.'],
+      ['What is the forgetting curve?','A graph showing how information is lost over time when there is no attempt to retain it.'],
+    ];
+    sampleCards.forEach(([f,b]) => {
+      data.cards.push(newCard(deckId, f, b));
+    });
+    save();
+  }
+}
+
+function uid() { return Math.random().toString(36).substr(2,9) + Date.now().toString(36); }
+
+function newCard(deckId, front, back) {
+  return {
+    id: uid(), deckId, front, back,
+    status: 'new', // new | learning | review
+    interval: 0,   // days
+    ease: 2.5,
+    due: Date.now(),
+    step: 0,        // learning step (0,1)
+    reviews: 0
+  };
+}
+
+function today() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function logReview() {
+  const t = today();
+  const entry = data.reviewLog.find(r => r.date === t);
+  if (entry) entry.count++;
+  else data.reviewLog.push({ date: t, count: 1 });
+}
+
+// ═══════════════════════════════════════════
+// SM-2 SIMPLIFIED
+// ═══════════════════════════════════════════
+const LEARN_STEPS = [1, 10]; // minutes
+
+function rateCard(card, rating) {
+  // rating: 0=again, 1=hard, 2=good, 3=easy
+  card.reviews++;
+  logReview();
+
+  if (card.status === 'new' || card.status === 'learning') {
+    if (rating === 0) {
+      card.step = 0;
+      card.status = 'learning';
+      card.due = Date.now() + LEARN_STEPS[0] * 60000;
+    } else if (rating === 1) {
+      card.status = 'learning';
+      card.due = Date.now() + LEARN_STEPS[0] * 60000;
+    } else if (rating === 2) {
+      card.step++;
+      if (card.step >= LEARN_STEPS.length) {
+        // graduate
+        card.status = 'review';
+        card.interval = 1;
+        card.due = Date.now() + 86400000;
+      } else {
+        card.status = 'learning';
+        card.due = Date.now() + LEARN_STEPS[card.step] * 60000;
+      }
+    } else { // easy
+      card.status = 'review';
+      card.interval = 4;
+      card.ease = Math.max(1.3, card.ease + 0.15);
+      card.due = Date.now() + 4 * 86400000;
+    }
+  } else { // review
+    if (rating === 0) {
+      card.status = 'learning';
+      card.step = 0;
+      card.interval = 1;
+      card.ease = Math.max(1.3, card.ease - 0.2);
+      card.due = Date.now() + LEARN_STEPS[0] * 60000;
+    } else if (rating === 1) {
+      card.interval = Math.max(1, Math.round(card.interval * 1.2));
+      card.ease = Math.max(1.3, card.ease - 0.15);
+      card.due = Date.now() + card.interval * 86400000;
+    } else if (rating === 2) {
+      card.interval = Math.max(1, Math.round(card.interval * card.ease));
+      card.due = Date.now() + card.interval * 86400000;
+    } else {
+      card.interval = Math.max(1, Math.round(card.interval * card.ease * 1.3));
+      card.ease = Math.max(1.3, card.ease + 0.15);
+      card.due = Date.now() + card.interval * 86400000;
+    }
+  }
+  save();
+}
+
+function getNextInterval(card, rating) {
+  if (card.status === 'new' || card.status === 'learning') {
+    if (rating === 0) return LEARN_STEPS[0] + 'm';
+    if (rating === 1) return LEARN_STEPS[0] + 'm';
+    if (rating === 2) {
+      if ((card.step + 1) >= LEARN_STEPS.length) return '1d';
+      return LEARN_STEPS[card.step + 1] + 'm';
+    }
+    return '4d';
+  } else {
+    if (rating === 0) return LEARN_STEPS[0] + 'm';
+    if (rating === 1) return Math.max(1, Math.round(card.interval * 1.2)) + 'd';
+    if (rating === 2) return Math.max(1, Math.round(card.interval * card.ease)) + 'd';
+    return Math.max(1, Math.round(card.interval * card.ease * 1.3)) + 'd';
+  }
+}
+
+// ═══════════════════════════════════════════
+// NAV & PAGES
+// ═══════════════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+  const page = document.getElementById('page-' + name);
+  if (page) page.classList.add('active');
+
+  const btns = document.querySelectorAll('.nav-btn');
+  const map = { decks: 0, add: 1, browse: 2, stats: 3 };
+  if (map[name] !== undefined && btns[map[name]]) btns[map[name]].classList.add('active');
+
+  if (name === 'decks') renderDecks();
+  if (name === 'add') populateAddDeckSelect();
+  if (name === 'browse') { populateBrowseDeckSelect(); renderBrowse(); }
+  if (name === 'stats') renderStats();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ═══════════════════════════════════════════
+// DECKS PAGE
+// ═══════════════════════════════════════════
+function renderDecks() {
+  const grid = document.getElementById('deckGrid');
+  let html = '';
+  data.decks.forEach(d => {
+    const cards = data.cards.filter(c => c.deckId === d.id);
+    const now = Date.now();
+    const newC = cards.filter(c => c.status === 'new').length;
+    const learnC = cards.filter(c => c.status === 'learning' && c.due <= now).length;
+    const reviewC = cards.filter(c => c.status === 'review' && c.due <= now).length;
+    html += `
+      <div class="deck-card" style="background:${d.grad}" onclick="startStudy('${d.id}')">
+        <div class="deck-actions">
+          <button class="deck-action-btn" onclick="event.stopPropagation();editDeck('${d.id}')" title="Edit">✏️</button>
+          <button class="deck-action-btn" onclick="event.stopPropagation();deleteDeck('${d.id}')" title="Delete">🗑️</button>
+        </div>
+        <h3>${escHtml(d.name)}</h3>
+        <p>${cards.length} card${cards.length!==1?'s':''}</p>
+        <div class="deck-stats">
+          <span class="deck-stat new-c">New ${newC}</span>
+          <span class="deck-stat learn-c">Learn ${learnC}</span>
+          <span class="deck-stat review-c">Review ${reviewC}</span>
+        </div>
+      </div>`;
+  });
+  html += `<div class="add-deck-card" onclick="openNewDeckModal()"><div class="plus">+</div><span>New Deck</span></div>`;
+  grid.innerHTML = html;
+}
+
+function openNewDeckModal() {
+  const box = document.getElementById('modalBox');
+  box.innerHTML = `
+    <h2 class="modal-title">Create New Deck</h2>
+    <div class="form-group">
+      <label>Deck Name</label>
+      <input type="text" class="form-input" id="newDeckName" placeholder="e.g. Japanese Vocabulary">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="createDeck()">Create</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>`;
+  document.getElementById('modal').classList.add('show');
+  setTimeout(() => document.getElementById('newDeckName').focus(), 100);
+}
+
+function createDeck() {
+  const name = document.getElementById('newDeckName').value.trim();
+  if (!name) return;
+  data.decks.push({ id: uid(), name, grad: GRADIENTS[data.decks.length % GRADIENTS.length], created: Date.now() });
+  save(); closeModal(); renderDecks();
+  showToast('Deck created!');
+}
+
+function editDeck(id) {
+  const deck = data.decks.find(d => d.id === id);
+  if (!deck) return;
+  const box = document.getElementById('modalBox');
+  box.innerHTML = `
+    <h2 class="modal-title">Edit Deck</h2>
+    <div class="form-group">
+      <label>Deck Name</label>
+      <input type="text" class="form-input" id="editDeckName" value="${escHtml(deck.name)}">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveDeckEdit('${id}')">Save</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>`;
+  document.getElementById('modal').classList.add('show');
+  setTimeout(() => document.getElementById('editDeckName').focus(), 100);
+}
+
+function saveDeckEdit(id) {
+  const deck = data.decks.find(d => d.id === id);
+  const name = document.getElementById('editDeckName').value.trim();
+  if (!name || !deck) return;
+  deck.name = name;
+  save(); closeModal(); renderDecks();
+  showToast('Deck updated!');
+}
+
+function deleteDeck(id) {
+  const deck = data.decks.find(d => d.id === id);
+  if (!deck) return;
+  const box = document.getElementById('modalBox');
+  box.innerHTML = `
+    <h2 class="modal-title">Delete Deck?</h2>
+    <p style="color:#aaa;margin-bottom:20px;">This will permanently delete <strong>"${escHtml(deck.name)}"</strong> and all its cards.</p>
+    <div class="btn-row">
+      <button class="btn btn-pink" onclick="confirmDeleteDeck('${id}')">Delete</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>`;
+  document.getElementById('modal').classList.add('show');
+}
+
+function confirmDeleteDeck(id) {
+  data.decks = data.decks.filter(d => d.id !== id);
+  data.cards = data.cards.filter(c => c.deckId !== id);
+  save(); closeModal(); renderDecks();
+  showToast('Deck deleted');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+// ═══════════════════════════════════════════
+// ADD CARDS
+// ═══════════════════════════════════════════
+function populateAddDeckSelect() {
+  const sel = document.getElementById('addDeckSelect');
+  sel.innerHTML = data.decks.map(d => `<option value="${d.id}">${escHtml(d.name)}</option>`).join('');
+}
+
+function addCard() {
+  const deckId = document.getElementById('addDeckSelect').value;
+  const front = document.getElementById('addFront').value.trim();
+  const back = document.getElementById('addBack').value.trim();
+  if (!deckId || !front || !back) { showToast('Please fill in all fields'); return; }
+  data.cards.push(newCard(deckId, front, back));
+  save();
+  document.getElementById('addFront').value = '';
+  document.getElementById('addBack').value = '';
+  showToast('Card added! ✨');
+  document.getElementById('addFront').focus();
+}
+
+// ═══════════════════════════════════════════
+// STUDY
+// ═══════════════════════════════════════════
+let studyQueue = [];
+let studyDeckId = null;
+
+function startStudy(deckId) {
+  studyDeckId = deckId;
+  const deck = data.decks.find(d => d.id === deckId);
+  if (!deck) return;
+  showPage('study');
+  // hide study from nav highlighting
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('studyDeckTitle').textContent = deck.name;
+  buildQueue();
+  showNextCard();
+}
+
+function buildQueue() {
+  const now = Date.now();
+  const cards = data.cards.filter(c => c.deckId === studyDeckId);
+  const newCards = cards.filter(c => c.status === 'new').slice(0, 20);
+  const learnCards = cards.filter(c => c.status === 'learning' && c.due <= now);
+  const reviewCards = cards.filter(c => c.status === 'review' && c.due <= now);
+
+  // interleave: learning first, then new, then review
+  studyQueue = [...learnCards, ...newCards, ...reviewCards];
+
+  // update counts
+  updateStudyCounts();
+}
+
+function updateStudyCounts() {
+  const now = Date.now();
+  const cards = data.cards.filter(c => c.deckId === studyDeckId);
+  document.getElementById('spNew').textContent = 'New: ' + cards.filter(c => c.status === 'new').length;
+  document.getElementById('spLearn').textContent = 'Learning: ' + cards.filter(c => c.status === 'learning' && c.due <= now).length;
+  document.getElementById('spReview').textContent = 'Review: ' + cards.filter(c => c.status === 'review' && c.due <= now).length;
+}
+
+function showNextCard() {
+  const container = document.getElementById('studyContent');
+
+  // rebuild queue
+  const now = Date.now();
+  const cards = data.cards.filter(c => c.deckId === studyDeckId);
+  const learnCards = cards.filter(c => c.status === 'learning' && c.due <= now);
+  const newCards = cards.filter(c => c.status === 'new').slice(0, 20);
+  const reviewCards = cards.filter(c => c.status === 'review' && c.due <= now);
+  studyQueue = [...learnCards, ...newCards, ...reviewCards];
+
+  updateStudyCounts();
+
+  if (studyQueue.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="emoji">🎉</div>
+        <p>Congratulations! You've finished all due cards in this deck.</p>
+        <br>
+        <button class="btn btn-primary" onclick="showPage('decks')">Back to Decks</button>
+      </div>`;
+    return;
+  }
+
+  const card = studyQueue[0];
+  container.innerHTML = `
+    <p class="tap-hint">Tap the card to reveal the answer</p>
+    <div class="flashcard-container">
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="flashcard-face flashcard-front">
+          <div class="flashcard-label">Question</div>
+          <div>${escHtml(card.front)}</div>
+        </div>
+        <div class="flashcard-face flashcard-back">
+          <div class="flashcard-label">Answer</div>
+          <div>${escHtml(card.back)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="rating-buttons" id="ratingBtns" style="opacity:0; pointer-events:none; transition: opacity .3s;">
+      <button class="rate-btn rate-again" onclick="rate('${card.id}',0)">
+        Again<span class="time">${getNextInterval(card,0)}</span>
+      </button>
+      <button class="rate-btn rate-hard" onclick="rate('${card.id}',1)">
+        Hard<span class="time">${getNextInterval(card,1)}</span>
+      </button>
+      <button class="rate-btn rate-good" onclick="rate('${card.id}',2)">
+        Good<span class="time">${getNextInterval(card,2)}</span>
+      </button>
+      <button class="rate-btn rate-easy" onclick="rate('${card.id}',3)">
+        Easy<span class="time">${getNextInterval(card,3)}</span>
+      </button>
+    </div>`;
+}
+
+function flipCard() {
+  const fc = document.getElementById('flashcard');
+  if (!fc.classList.contains('flipped')) {
+    fc.classList.add('flipped');
+    const btns = document.getElementById('ratingBtns');
+    btns.style.opacity = '1';
+    btns.style.pointerEvents = 'auto';
+  }
+}
+
+function rate(cardId, rating) {
+  const card = data.cards.find(c => c.id === cardId);
+  if (!card) return;
+  rateCard(card, rating);
+  showNextCard();
+}
+
+// ═══════════════════════════════════════════
+// BROWSE
+// ═══════════════════════════════════════════
+function populateBrowseDeckSelect() {
+  const sel = document.getElementById('browseDeckSelect');
+  sel.innerHTML = '<option value="">All Decks</option>' + data.decks.map(d => `<option value="${d.id}">${escHtml(d.name)}</option>`).join('');
+}
+
+function renderBrowse() {
+  const deckId = document.getElementById('browseDeckSelect').value;
+  const search = document.getElementById('browseSearch').value.toLowerCase();
+  let cards = data.cards;
+  if (deckId) cards = cards.filter(c => c.deckId === deckId);
+  if (search) cards = cards.filter(c => c.front.toLowerCase().includes(search) || c.back.toLowerCase().includes(search));
+
+  const body = document.getElementById('browseBody');
+  const empty = document.getElementById('browseEmpty');
+
+  if (cards.length === 0) {
+    body.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  body.innerHTML = cards.map(c => {
+    const dueStr = c.status === 'new' ? 'New' : new Date(c.due).toLocaleDateString();
+    return `<tr>
+      <td>${escHtml(c.front)}</td>
+      <td>${escHtml(c.back)}</td>
+      <td>${c.status}</td>
+      <td>${dueStr}</td>
+      <td class="td-actions">
+        <button class="small-btn" onclick="editCard('${c.id}')">Edit</button>
+        <button class="small-btn del" onclick="deleteCard('${c.id}')">Del</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function editCard(id) {
+  const card = data.cards.find(c => c.id === id);
+  if (!card) return;
+  const box = document.getElementById('modalBox');
+  box.innerHTML = `
+    <h2 class="modal-title">Edit Card</h2>
+    <div class="form-group">
+      <label>Front</label>
+      <textarea class="form-input" id="editCardFront">${escHtml(card.front)}</textarea>
+    </div>
+    <div class="form-group">
+      <label>Back</label>
+      <textarea class="form-input" id="editCardBack">${escHtml(card.back)}</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveCardEdit('${id}')">Save</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>`;
+  document.getElementById('modal').classList.add('show');
+}
+
+function saveCardEdit(id) {
+  const card = data.cards.find(c => c.id === id);
+  if (!card) return;
+  card.front = document.getElementById('editCardFront').value.trim();
+  card.back = document.getElementById('editCardBack').value.trim();
+  save(); closeModal(); renderBrowse();
+  showToast('Card updated!');
+}
+
+function deleteCard(id) {
+  data.cards = data.cards.filter(c => c.id !== id);
+  save(); renderBrowse();
+  showToast('Card deleted');
+}
+
+// ═══════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════
+function renderStats() {
+  const totalCards = data.cards.length;
+  const newC = data.cards.filter(c => c.status === 'new').length;
+  const learnC = data.cards.filter(c => c.status === 'learning').length;
+  const reviewC = data.cards.filter(c => c.status === 'review').length;
+  const totalReviews = data.cards.reduce((s,c) => s + c.reviews, 0);
+  const matureCards = data.cards.filter(c => c.interval >= 21).length;
+
+  const grid = document.getElementById('statsGrid');
+  grid.innerHTML = `
+    <div class="stat-card" style="background:var(--grad2)"><div class="num">${totalCards}</div><div class="lbl">Total Cards</div></div>
+    <div class="stat-card" style="background:var(--grad1)"><div class="num">${totalReviews}</div><div class="lbl">Total Reviews</div></div>
+    <div class="stat-card" style="background:var(--grad3);color:#111"><div class="num">${matureCards}</div><div class="lbl">Mature Cards</div></div>
+    <div class="stat-card" style="background:var(--grad4);color:#111"><div class="num">${data.decks.length}</div><div class="lbl">Decks</div></div>
+  `;
+
+  // Heatmap last 30 days
+  const heatmap = document.getElementById('heatmap');
+  let cells = '';
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().slice(0,10);
+    const entry = data.reviewLog.find(r => r.date === dateStr);
+    const count = entry ? entry.count : 0;
+    let color = 'rgba(255,255,255,0.04)';
+    if (count > 0) color = 'rgba(67,233,123,0.25)';
+    if (count >= 5) color = 'rgba(67,233,123,0.45)';
+    if (count >= 15) color = 'rgba(67,233,123,0.65)';
+    if (count >= 30) color = 'rgba(67,233,123,0.9)';
+    cells += `<div class="heatmap-cell" style="background:${color}" title="${dateStr}: ${count} reviews"></div>`;
+  }
+  heatmap.innerHTML = cells;
+}
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function escHtml(s) {
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+// close modal on overlay click
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  const fc = document.getElementById('flashcard');
+  if (fc && !fc.classList.contains('flipped') && e.code === 'Space') {
+    e.preventDefault();
+    flipCard();
+  }
+  if (fc && fc.classList.contains('flipped')) {
+    if (e.key === '1') document.querySelector('.rate-again')?.click();
+    if (e.key === '2') document.querySelector('.rate-hard')?.click();
+    if (e.key === '3') document.querySelector('.rate-good')?.click();
+    if (e.key === '4') document.querySelector('.rate-easy')?.click();
+  }
+});
+
+// INIT
+load();
+renderDecks();
+</script>
 </body>
 </html>
